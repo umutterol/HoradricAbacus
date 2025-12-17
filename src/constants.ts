@@ -1,0 +1,222 @@
+// src/constants.ts
+
+export type BossId =
+    | 'belial' | 'harbinger' | 'andariel' | 'duriel'
+    | 'urivar' | 'zir' | 'beast' | 'grigoire' | 'varshan';
+
+export type MaterialKey =
+    | 'mat_husk' | 'mat_abhorrent' | 'mat_doll' | 'mat_shard'
+    | 'mat_mask' | 'mat_blood' | 'mat_fear' | 'mat_steel' | 'mat_heart';
+
+export interface BossData {
+    id: BossId;
+    nameKey: string;     // Key for translation
+    materialKey: MaterialKey; // Key for translation
+    cost: number;
+    isJokerCompatible: boolean; // Can use Stygian Stone?
+}
+
+export const BOSS_LIST: BossData[] = [
+    {
+        id: 'belial',
+        nameKey: 'boss_belial',
+        materialKey: 'mat_husk',
+        cost: 2,
+        isJokerCompatible: false
+    },
+    {
+        id: 'harbinger',
+        nameKey: 'boss_harbinger',
+        materialKey: 'mat_abhorrent',
+        cost: 3,
+        isJokerCompatible: true
+    },
+    {
+        id: 'andariel',
+        nameKey: 'boss_andariel',
+        materialKey: 'mat_doll',
+        cost: 3,
+        isJokerCompatible: true
+    },
+    {
+        id: 'duriel',
+        nameKey: 'boss_duriel',
+        materialKey: 'mat_shard',
+        cost: 3,
+        isJokerCompatible: true
+    },
+    {
+        id: 'urivar',
+        nameKey: 'boss_urivar',
+        materialKey: 'mat_mask',
+        cost: 12,
+        isJokerCompatible: false
+    },
+    {
+        id: 'zir',
+        nameKey: 'boss_zir',
+        materialKey: 'mat_blood',
+        cost: 12,
+        isJokerCompatible: false
+    },
+    {
+        id: 'beast',
+        nameKey: 'boss_beast',
+        materialKey: 'mat_fear',
+        cost: 12,
+        isJokerCompatible: false
+    },
+    {
+        id: 'grigoire',
+        nameKey: 'boss_grigoire',
+        materialKey: 'mat_steel',
+        cost: 12,
+        isJokerCompatible: false
+    },
+    {
+        id: 'varshan',
+        nameKey: 'boss_varshan',
+        materialKey: 'mat_heart',
+        cost: 12,
+        isJokerCompatible: false
+    },
+];
+
+// Joker bosses for priority selection
+export const JOKER_BOSSES = BOSS_LIST.filter(b => b.isJokerCompatible);
+
+export type JokerPriority = 'duriel' | 'andariel' | 'harbinger' | 'balanced';
+
+export const JOKER_PRIORITY_OPTIONS: { value: JokerPriority; labelKey: string }[] = [
+    { value: 'duriel', labelKey: 'priority_duriel' },
+    { value: 'andariel', labelKey: 'priority_andariel' },
+    { value: 'harbinger', labelKey: 'priority_harbinger' },
+    { value: 'balanced', labelKey: 'priority_balanced' },
+];
+
+export type Language = 'en' | 'tr';
+
+export const TRANSLATIONS: Record<Language, Record<string, string>> = {
+    en: {
+        lbl_player: "Player",
+        lbl_stygian: "Stygian Stone",
+        lbl_priority: "Stygian Priority",
+        btn_calculate: "Optimize Loot",
+        btn_reset: "Reset",
+        sec_results: "Optimization Results",
+        sec_trades: "Required Trades",
+        txt_total_kills: "Total Summons",
+        txt_no_trades: "No trades required. Everyone has optimal materials.",
+        txt_gives: "gives",
+        txt_to: "to",
+        txt_stygian_usage: "Use Stygian Stones for",
+        // Priority options
+        priority_duriel: "Duriel",
+        priority_andariel: "Andariel",
+        priority_harbinger: "Harbinger",
+        priority_balanced: "Balanced",
+        // Bosses
+        boss_belial: "Belial",
+        boss_harbinger: "Harbinger",
+        boss_andariel: "Andariel",
+        boss_duriel: "Duriel",
+        boss_urivar: "Urivar",
+        boss_zir: "Lord Zir",
+        boss_beast: "Beast in Ice",
+        boss_grigoire: "Grigoire",
+        boss_varshan: "Varshan",
+        // Materials
+        mat_husk: "Betrayer's Husk",
+        mat_abhorrent: "Abhorrent Heart",
+        mat_doll: "Pincushioned Doll",
+        mat_shard: "Shard of Agony",
+        mat_mask: "Judicator's Mask",
+        mat_blood: "Exquisite Blood",
+        mat_fear: "Distilled Fear",
+        mat_steel: "Living Steel",
+        mat_heart: "Malignant Heart",
+        mat_stygian: "Stygian Stone",
+        // Tutorial
+        tut_welcome: "Optimize your Diablo 4 boss rotations and calculate the perfect material trades for your party.",
+        tut_how_to: "How to Use",
+        tut_step1: "Enter materials for all party members",
+        tut_step2: "Check the boxes next to active players (auto-detects empty inventories)",
+        tut_step3: "Select your preferred Stygian boss (Duriel/Andariel/Harbinger)",
+        tut_step4: "Click 'Optimize Loot' to calculate max kills and trades",
+    },
+    tr: {
+        lbl_player: "Oyuncu",
+        lbl_stygian: "Stygian Stone",
+        lbl_priority: "Stygian Önceliği",
+        btn_calculate: "Optimize Et",
+        btn_reset: "Sıfırla",
+        sec_results: "Sonuçlar",
+        sec_trades: "Gerekli Takaslar",
+        txt_total_kills: "Toplam Çağırma",
+        txt_no_trades: "Takas gerekmiyor. Herkesin malzemesi uygun.",
+        txt_gives: "verir",
+        txt_to: "kişisine",
+        txt_stygian_usage: "Stygian Stone Kullan",
+        // Priority options
+        priority_duriel: "Duriel",
+        priority_andariel: "Andariel",
+        priority_harbinger: "Harbinger",
+        priority_balanced: "Dengeli",
+        // Bosses
+        boss_belial: "Belial",
+        boss_harbinger: "Habercisi",
+        boss_andariel: "Andariel",
+        boss_duriel: "Duriel",
+        boss_urivar: "Urivar",
+        boss_zir: "Lord Zir",
+        boss_beast: "Buzdaki Canavar",
+        boss_grigoire: "Grigoire",
+        boss_varshan: "Varshan",
+        // Materials
+        mat_husk: "Hainin Kabuğu",
+        mat_abhorrent: "İğrenç Kalp",
+        mat_doll: "İğneli Bebek",
+        mat_shard: "Izdırap Parçası",
+        mat_mask: "Yargıcın Maskesi",
+        mat_blood: "Enfes Kan",
+        mat_fear: "Damıtılmış Korku",
+        mat_steel: "Canlı Çelik",
+        mat_heart: "Habis Kalp",
+        mat_stygian: "Stygian Stone",
+        // Tutorial
+        tut_welcome: "Diablo 4 boss rotasyonlarınızı optimize edin ve partiniz için mükemmel malzeme takaslarını hesaplayın.",
+        tut_how_to: "Nasıl Kullanılır",
+        tut_step1: "Tüm parti üyeleri için malzemeleri girin",
+        tut_step2: "Aktif oyuncuların kutucuklarını işaretleyin (boş envanterleri otomatik algılar)",
+        tut_step3: "Tercih ettiğiniz Stygian boss'unu seçin (Duriel/Andariel/Harbinger)",
+        tut_step4: "Maksimum kesim ve takasları görmek için 'Optimize Et'e tıklayın",
+    }
+};
+
+// Material colors for visual distinction
+export const MATERIAL_COLORS: Record<MaterialKey | 'stygian', string> = {
+    mat_husk: '#6b7280',      // Gray
+    mat_abhorrent: '#dc2626', // Red
+    mat_doll: '#9333ea',      // Purple
+    mat_shard: '#ea580c',     // Orange
+    mat_mask: '#eab308',      // Yellow
+    mat_blood: '#b91c1c',     // Dark red
+    mat_fear: '#3b82f6',      // Blue
+    mat_steel: '#6b7280',     // Steel gray
+    mat_heart: '#16a34a',     // Green
+    stygian: '#7c3aed',       // Violet
+};
+
+// Material icons mapping
+export const MATERIAL_ICONS: Record<MaterialKey | 'stygian', string> = {
+    mat_husk: '/icons/betrayershusk.webp',
+    mat_abhorrent: '/icons/abhorrenthearts.webp',
+    mat_doll: '/icons/pincushioneddoll.png',
+    mat_shard: '/icons/shardofagony.png',
+    mat_mask: '/icons/judicatorsmask.webp',
+    mat_blood: '/icons/exquisiteblood.png',
+    mat_fear: '/icons/distilledfear.png',
+    mat_steel: '/icons/livingsteel.png',
+    mat_heart: '/icons/malignantheart.png',
+    stygian: '/icons/stygianstone.png',
+};
