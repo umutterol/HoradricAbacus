@@ -143,6 +143,18 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
         tut_step2: "Check the boxes next to active players (auto-detects empty inventories)",
         tut_step3: "Select your preferred Stygian boss (Duriel/Andariel/Harbinger)",
         tut_step4: "Click 'Optimize Loot' to calculate max kills and trades",
+        // Dialog & Feedback
+        dlg_reset_title: "Reset All Data?",
+        dlg_reset_message: "This will clear all material inputs and player names. This action cannot be undone.",
+        dlg_confirm: "Yes, Reset",
+        dlg_cancel: "Cancel",
+        btn_help: "Help",
+        dlg_got_it: "Got it!",
+        toast_optimized: "Optimization complete!",
+        txt_no_materials: "Enter materials for at least one player to optimize.",
+        aria_player_toggle: "Toggle player {0} active status",
+        aria_material_input: "{0} count for Player {1}",
+        aria_player_name: "Player {0} name",
     },
     tr: {
         lbl_player: "Oyuncu",
@@ -190,6 +202,18 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
         tut_step2: "Aktif oyuncuların kutucuklarını işaretleyin (boş envanterleri otomatik algılar)",
         tut_step3: "Tercih ettiğiniz Stygian boss'unu seçin (Duriel/Andariel/Harbinger)",
         tut_step4: "Maksimum kesim ve takasları görmek için 'Optimize Et'e tıklayın",
+        // Dialog & Feedback
+        dlg_reset_title: "Tüm Verileri Sıfırla?",
+        dlg_reset_message: "Bu işlem tüm malzeme girişlerini ve oyuncu isimlerini temizleyecek. Bu işlem geri alınamaz.",
+        dlg_confirm: "Evet, Sıfırla",
+        dlg_cancel: "İptal",
+        btn_help: "Yardım",
+        dlg_got_it: "Anladım!",
+        toast_optimized: "Optimizasyon tamamlandı!",
+        txt_no_materials: "Optimizasyon için en az bir oyuncuya malzeme girin.",
+        aria_player_toggle: "Oyuncu {0} aktiflik durumunu değiştir",
+        aria_material_input: "Oyuncu {1} için {0} sayısı",
+        aria_player_name: "Oyuncu {0} adı",
     }
 };
 

@@ -1,73 +1,137 @@
-# React + TypeScript + Vite
+<p align="center">
+  <img src="public/logo.png" alt="Horadric Abacus" width="300">
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<h1 align="center">Horadric Abacus</h1>
 
-Currently, two official plugins are available:
+<p align="center">
+  <strong>Diablo 4 Boss Rotation Optimizer</strong><br>
+  Maximize your party's boss kills by optimizing material trades
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#how-it-works">How It Works</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#tech-stack">Tech Stack</a>
+</p>
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What is Horadric Abacus?
 
-## Expanding the ESLint configuration
+Horadric Abacus is a web tool designed for **Diablo 4 players** who want to optimize their boss farming rotations. When playing in a party, each player has different summoning materials. This tool calculates the **optimal way to trade materials** between party members to maximize the total number of boss summons.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### The Problem It Solves
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+In Diablo 4, summoning bosses requires specific materials. When farming in a party of 2-4 players:
+- Each player has different amounts of various materials
+- Some materials are more valuable than others
+- **Stygian Stones** can substitute for certain materials (Duriel, Andariel, Harbinger)
+- Manually figuring out optimal trades is tedious and error-prone
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+**Horadric Abacus does the math for you** — just enter each player's materials and get an optimized rotation plan with exact trade instructions.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Features
+
+- **Smart Optimization** — Calculates maximum possible boss summons from pooled materials
+- **Trade Instructions** — Shows exactly who should trade what to whom
+- **Stygian Stone Support** — Intelligently allocates Stygian Stones based on your priority
+- **Priority Selection** — Choose to prioritize Duriel, Andariel, Harbinger, or balanced distribution
+- **Party Flexibility** — Works with 2, 3, or 4 players
+- **Data Persistence** — Your inputs are saved locally, survive page refreshes
+- **Bilingual** — Available in English and Turkish
+- **Mobile Friendly** — Fully responsive design
+
+## How It Works
+
+1. **Enter Materials** — Input each party member's material counts
+2. **Set Priority** — Choose which Stygian-compatible boss to prioritize
+3. **Optimize** — Click "Optimize Loot" to calculate the best rotation
+4. **Trade & Farm** — Follow the trade list, then summon bosses together
+
+### Supported Bosses & Materials
+
+| Boss | Material | Cost |
+|------|----------|------|
+| Belial | Betrayer's Husk | 2 |
+| Harbinger | Abhorrent Heart | 3 |
+| Andariel | Pincushioned Doll | 3 |
+| Duriel | Shard of Agony | 3 |
+| Urivar | Judicator's Mask | 12 |
+| Lord Zir | Exquisite Blood | 12 |
+| Beast in Ice | Distilled Fear | 12 |
+| Grigoire | Living Steel | 12 |
+| Varshan | Malignant Heart | 12 |
+
+**Stygian Stones** can substitute materials for Duriel, Andariel, and Harbinger only.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/umutterol/HoradricAbacus.git
+
+# Navigate to directory
+cd HoradricAbacus
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## Tech Stack
+
+- **React 19** — UI framework
+- **TypeScript** — Type safety
+- **Vite** — Build tool
+- **Tailwind CSS** — Styling
+- **Lucide React** — Icons
+
+## Design
+
+The UI is inspired by Diablo 4's dark, gothic aesthetic featuring:
+- Sanctuary dark theme with leather textures
+- Custom Diablo-style buttons using 3-slice image technique
+- Cinzel font for headings (medieval/fantasy feel)
+- Material icons from the game
+
+## Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## Disclaimer
+
+This project is **not affiliated with or endorsed by Blizzard Entertainment**. Diablo is a trademark of Blizzard Entertainment, Inc. All game assets and terminology are property of their respective owners.
+
+---
+
+<p align="center">
+  Built for the Diablo community<br>
+  <a href="https://github.com/umutterol/HoradricAbacus">GitHub</a> •
+  <a href="https://x.com/UmutTuncErol">Twitter/X</a>
+</p>

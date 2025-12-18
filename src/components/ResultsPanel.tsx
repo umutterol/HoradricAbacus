@@ -30,9 +30,9 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
             position: relative;
             background: var(--color-bg-secondary);
             border: 1px solid var(--color-border);
-            border-radius: 0.5rem;
             padding: 1.5rem;
             overflow: hidden;
+            flex: 1;
           }
 
           .results-tutorial::before {
@@ -185,8 +185,23 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
           position: relative;
           background: var(--color-bg-secondary);
           border: 1px solid var(--color-border);
-          border-radius: 0.5rem;
           overflow: hidden;
+          animation: resultsFadeIn 0.4s ease-out;
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          min-height: 0;
+        }
+
+        @keyframes resultsFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         .results-panel::before {
@@ -264,7 +279,6 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
           padding: 0.25rem 0.5rem;
           background: rgba(0, 0, 0, 0.3);
           border: 1px solid var(--color-border);
-          border-radius: 0.25rem;
           font-size: 0.75rem;
         }
         
@@ -290,6 +304,11 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
         
         .trades-section {
           padding: 0.75rem 1rem;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          overflow: hidden;
         }
         
         .trades-title {
@@ -309,8 +328,9 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
           display: flex;
           flex-direction: column;
           gap: 0.375rem;
-          max-height: 300px;
+          flex: 1;
           overflow-y: auto;
+          min-height: 0;
         }
         
         .trade-item {
@@ -319,15 +339,14 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
           gap: 0.375rem;
           padding: 0.375rem 0.5rem;
           background: rgba(0, 0, 0, 0.2);
-          border-radius: 0.25rem;
+          border: 1px solid rgba(120, 53, 15, 0.3);
           font-size: 0.8125rem;
         }
-        
+
         .player-badge {
           background: var(--color-border);
           color: var(--color-text-primary);
           padding: 0.125rem 0.375rem;
-          border-radius: 0.25rem;
           font-weight: 600;
           font-size: 0.75rem;
           /* Handle long names seamlessly */
@@ -358,14 +377,13 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
         .trades-list::-webkit-scrollbar {
           width: 6px;
         }
-        
+
         .trades-list::-webkit-scrollbar-track {
           background: transparent;
         }
-        
+
         .trades-list::-webkit-scrollbar-thumb {
           background: var(--color-border);
-          border-radius: 3px;
         }
       `}</style>
     </div>

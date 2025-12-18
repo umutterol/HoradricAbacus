@@ -11,15 +11,18 @@ interface BossPrioritySelectorProps {
 
 export function BossPrioritySelector({ priority, onPriorityChange, t }: BossPrioritySelectorProps) {
   return (
-    <div className="priority-selector">
-      <label className="priority-label">{t('lbl_priority')}</label>
-      <div className="priority-options">
+    <div className="priority-selector" role="group" aria-labelledby="priority-label">
+      <label id="priority-label" className="priority-label">{t('lbl_priority')}</label>
+      <div className="priority-options" role="radiogroup" aria-label={t('lbl_priority')}>
         {JOKER_PRIORITY_OPTIONS.map(option => (
           <DiabloButton
             key={option.value}
             variant={priority === option.value ? 'active' : 'muted'}
             size="sm"
             onClick={() => onPriorityChange(option.value)}
+            role="radio"
+            aria-checked={priority === option.value}
+            aria-label={`${t(option.labelKey)} priority`}
           >
             {t(option.labelKey)}
           </DiabloButton>
