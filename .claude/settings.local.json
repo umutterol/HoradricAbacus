@@ -17,7 +17,11 @@
       "Bash(tree:*)",
       "Bash(git checkout:*)",
       "Bash(npm run dev:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "WebFetch(domain:www.reddit.com)",
+      "WebSearch",
+      "Bash(git merge:*)",
+      "Bash(git push:*)"
     ]
   }
 }

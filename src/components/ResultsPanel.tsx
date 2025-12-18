@@ -1,4 +1,5 @@
-import { Skull, ArrowRight, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Skull, ArrowRight, CheckCircle, Check } from 'lucide-react';
 import { BOSS_LIST, MATERIAL_COLORS, MATERIAL_ICONS } from '../constants';
 import type { MaterialKey, BossId } from '../constants';
 import type { TranslateFunction } from '../hooks/useLanguage';
@@ -12,6 +13,24 @@ interface ResultsPanelProps {
 }
 
 export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPanelProps) {
+  const [completedTrades, setCompletedTrades] = useState<Set<number>>(new Set());
+
+  // Reset completed trades when result changes
+  useEffect(() => {
+    setCompletedTrades(new Set());
+  }, [result]);
+
+  const toggleTradeComplete = (idx: number) => {
+    setCompletedTrades(prev => {
+      const next = new Set(prev);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+      }
+      return next;
+    });
+  };
   if (!result) {
     return (
       <div className="results-empty">
@@ -209,20 +228,25 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
                     })
                 : null;
 
+              const isCompleted = completedTrades.has(idx);
+              const materialIcon = MATERIAL_ICONS[trade.material];
+
               return (
                 <div
                   key={idx}
-                  className="trade-row"
+                  className={`trade-row ${isCompleted ? 'completed' : ''}`}
                   style={{ animationDelay: `${idx * 30}ms` }}
+                  onClick={() => toggleTradeComplete(idx)}
                 >
                   <span className="trade-player from">{getPlayerLabel(trade.fromPlayer)}</span>
                   <ArrowRight size={12} className="trade-arrow" />
                   <span className="trade-player to">{getPlayerLabel(trade.toPlayer)}</span>
                   <span
                     className="trade-item"
-                    style={{ color: getMaterialColor(trade.material) }}
+                    style={{ '--item-color': getMaterialColor(trade.material) } as React.CSSProperties}
                   >
                     <span className="trade-amount">{trade.amount}x</span>
+                    <img src={materialIcon} alt="" className="trade-icon" />
                     <span className="trade-name">
                       {t(trade.material === 'stygian' ? 'mat_stygian' : trade.material)}
                     </span>
@@ -232,6 +256,17 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
                       {stygianBossInfo.join(', ')}
                     </span>
                   )}
+                  <button
+                    type="button"
+                    className={`trade-check ${isCompleted ? 'checked' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleTradeComplete(idx);
+                    }}
+                    aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+                  >
+                    {isCompleted && <Check size={12} />}
+                  </button>
                 </div>
               );
             })}
@@ -291,7 +326,6 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
           border: 1px solid var(--color-border);
           display: flex;
           flex-direction: column;
-          flex: 1;
           min-height: 0;
           animation: slideUp 0.4s ease-out;
         }
@@ -348,10 +382,10 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
 
         /* Boss Summary */
         .boss-summary {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-          gap: 0.5rem;
-          padding: 0.875rem 1rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.375rem;
+          padding: 0.625rem 1rem;
           border-bottom: 1px solid var(--color-border-subtle);
         }
 
@@ -359,10 +393,10 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
           position: relative;
           background: var(--color-bg-void);
           border: 1px solid var(--color-border);
-          padding: 0.5rem 0.625rem;
+          padding: 0.25rem 0.5rem 0.25rem 0.625rem;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.375rem;
           animation: slideUp 0.3s ease-out both;
           transition: border-color 0.2s, background 0.2s;
         }
@@ -373,7 +407,7 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
         }
 
         .boss-color-bar {
-          width: 3px;
+          width: 2px;
           height: 100%;
           position: absolute;
           left: 0;
@@ -384,44 +418,43 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
 
         .boss-info {
           display: flex;
-          flex-direction: column;
-          gap: 0.125rem;
-          padding-left: 0.25rem;
+          align-items: baseline;
+          gap: 0.375rem;
         }
 
         .boss-name {
-          font-size: 0.8125rem;
+          font-size: 0.6875rem;
           color: var(--color-text-secondary);
           text-transform: uppercase;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.02em;
         }
 
         .boss-stats {
           display: flex;
           align-items: baseline;
-          gap: 0.25rem;
+          gap: 0.125rem;
         }
 
         .boss-count {
           font-family: var(--font-display);
-          font-size: 1.125rem;
+          font-size: 0.9375rem;
           font-weight: 600;
           color: var(--color-gold);
         }
 
         .stygian-used {
-          font-size: 0.625rem;
+          font-size: 0.5625rem;
           color: var(--color-stygian);
           font-weight: 500;
         }
 
         /* Trades Section */
         .trades-section {
-          flex: 1;
           display: flex;
           flex-direction: column;
           min-height: 0;
-          padding: 0.875rem 1rem;
+          padding: 0.75rem 1rem;
+          max-height: 280px;
         }
 
         .trades-title {
@@ -443,10 +476,11 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
         .trades-list {
           display: flex;
           flex-direction: column;
-          gap: 0.375rem;
+          gap: 0.25rem;
           flex: 1;
           overflow-y: auto;
           min-height: 0;
+          padding-right: 0.25rem;
         }
 
         .trade-row {
@@ -458,11 +492,27 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
           border: 1px solid var(--color-border-subtle);
           font-size: 0.875rem;
           animation: slideUp 0.3s ease-out both;
-          transition: background 0.15s;
+          transition: all 0.2s;
+          cursor: pointer;
         }
 
         .trade-row:hover {
           background: rgba(0, 0, 0, 0.35);
+        }
+
+        .trade-row.completed {
+          background: rgba(22, 101, 52, 0.25);
+          border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .trade-row.completed:hover {
+          background: rgba(22, 101, 52, 0.35);
+        }
+
+        .trade-row.completed .trade-player,
+        .trade-row.completed .trade-arrow,
+        .trade-row.completed .trade-item {
+          opacity: 0.7;
         }
 
         .trade-player {
@@ -497,11 +547,19 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
           gap: 0.25rem;
           margin-left: auto;
           font-weight: 500;
+          color: var(--item-color);
         }
 
         .trade-amount {
           font-family: var(--font-mono);
           font-size: 0.8125rem;
+        }
+
+        .trade-icon {
+          width: 18px;
+          height: 18px;
+          object-fit: contain;
+          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
         }
 
         .trade-name {
@@ -512,6 +570,37 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
           color: var(--color-stygian);
           font-size: 0.75rem;
           opacity: 0.8;
+        }
+
+        .trade-check {
+          width: 20px;
+          height: 20px;
+          margin-left: 0.375rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: 1px solid var(--color-border);
+          color: var(--color-text-muted);
+          cursor: pointer;
+          transition: all 0.15s;
+          flex-shrink: 0;
+          padding: 0;
+        }
+
+        .trade-check:hover {
+          border-color: var(--color-bronze);
+          color: var(--color-text-secondary);
+        }
+
+        .trade-check.checked {
+          background: rgba(34, 197, 94, 0.3);
+          border-color: rgba(34, 197, 94, 0.6);
+          color: #22c55e;
+        }
+
+        .trade-check.checked:hover {
+          background: rgba(34, 197, 94, 0.4);
         }
 
         /* Scrollbar */
@@ -583,33 +672,32 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
         }
 
         .player-materials {
-          padding: 0.5rem;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.375rem;
-          justify-content: center;
+          padding: 0.375rem;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.25rem;
         }
 
         .material-requirement {
           display: flex;
           align-items: center;
           gap: 0.25rem;
-          padding: 0.25rem 0.5rem;
+          padding: 0.1875rem 0.375rem;
           background: rgba(0, 0, 0, 0.3);
           border: 1px solid var(--color-border-subtle);
           border-left: 2px solid var(--mat-color);
         }
 
         .material-req-icon {
-          width: 20px;
-          height: 20px;
+          width: 16px;
+          height: 16px;
           object-fit: contain;
           filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
         }
 
         .material-req-amount {
           font-family: var(--font-mono);
-          font-size: 0.875rem;
+          font-size: 0.75rem;
           font-weight: 600;
           color: var(--color-text-primary);
         }

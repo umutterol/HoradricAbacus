@@ -328,7 +328,6 @@ function App() {
         .panel--results {
           display: flex;
           flex-direction: column;
-          min-height: 400px;
         }
 
         /* Actions Section */
@@ -357,10 +356,6 @@ function App() {
         @media (max-width: 900px) {
           .layout {
             grid-template-columns: 1fr;
-          }
-
-          .panel--results {
-            min-height: 300px;
           }
         }
 
