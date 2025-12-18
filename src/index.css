@@ -5,17 +5,19 @@
 
 /* Sanctuary Dark Theme Variables */
 :root {
-  /* Colors */
-  --color-bg-primary: #0c0a09;
-  --color-bg-secondary: #1c1917;
-  --color-border: #78350f;
-  --color-border-accent: #b91c1c;
-  --color-gold: #fcd34d;
-  --color-gold-dark: #d97706;
-  --color-red: #b91c1c;
-  --color-red-dark: #7f1d1d;
-  --color-text-primary: #e7e5e4;
-  --color-text-secondary: #a8a29e;
+  /* Colors - Refined Diablo Palette */
+  --color-bg-primary: #121110;
+  --color-bg-secondary: #1C1B1A;
+  --color-border: #8A6A4B;
+  --color-border-accent: #D4AF37;
+  --color-gold: #D4AF37;
+  --color-gold-dark: #8A6A4B;
+  --color-red: #7F1D1D;
+  --color-red-light: #991B1B;
+  --color-green: #14532D;
+  --color-blue: #0C4A6E;
+  --color-text-primary: #E5E5E5;
+  --color-text-secondary: #9CA3AF;
   --color-stygian: #7c3aed;
 
   /* Typography */
@@ -70,7 +72,7 @@ h6 {
 
 /* Focus Styles */
 :focus-visible {
-  outline: 2px solid var(--color-red);
+  outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }
 
@@ -88,8 +90,8 @@ input[type="text"] {
 
 input[type="number"]:focus,
 input[type="text"]:focus {
-  border-color: var(--color-red);
-  box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.25);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
   outline: none;
 }
 
@@ -111,13 +113,13 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .btn-primary {
-  background-color: var(--color-red-dark);
-  border: 1px solid var(--color-red);
+  background-color: var(--color-red);
+  border: 1px solid var(--color-red-light);
   color: var(--color-text-primary);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-red);
+  background-color: var(--color-red-light);
 }
 
 .btn-secondary {

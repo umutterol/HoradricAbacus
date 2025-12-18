@@ -204,7 +204,7 @@ export function MaterialGrid({
         }
 
         .player-checkbox:focus-visible + .player-toggle-indicator {
-          outline: 2px solid var(--color-red);
+          outline: 2px solid var(--color-gold);
           outline-offset: 2px;
         }
 
@@ -233,7 +233,7 @@ export function MaterialGrid({
           outline: none;
           border-color: var(--color-gold);
           background: rgba(0, 0, 0, 0.5);
-          box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.2);
+          box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
         }
 
         .player-name-input::placeholder {
@@ -245,7 +245,7 @@ export function MaterialGrid({
         .player-name-input.inactive {
           color: var(--color-text-secondary);
           opacity: 0.4;
-          border-color: rgba(120, 53, 15, 0.5);
+          border-color: rgba(138, 106, 75, 0.5);
         }
 
         .material-rows {

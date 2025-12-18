@@ -16,7 +16,8 @@
       "Bash(vercel:*)",
       "Bash(tree:*)",
       "Bash(git checkout:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(git branch:*)"
     ]
   }
 }

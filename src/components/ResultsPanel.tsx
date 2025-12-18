@@ -339,7 +339,7 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
           gap: 0.375rem;
           padding: 0.375rem 0.5rem;
           background: rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(120, 53, 15, 0.3);
+          border: 1px solid rgba(138, 106, 75, 0.3);
           font-size: 0.8125rem;
         }
 
