@@ -1,16 +1,17 @@
-import { Skull, ArrowRight } from 'lucide-react';
-import { BOSS_LIST, MATERIAL_COLORS } from '../constants';
-import type { MaterialKey } from '../constants';
+import { Skull, ArrowRight, CheckCircle } from 'lucide-react';
+import { BOSS_LIST, MATERIAL_COLORS, MATERIAL_ICONS } from '../constants';
+import type { MaterialKey, BossId } from '../constants';
 import type { TranslateFunction } from '../hooks/useLanguage';
 import type { OptimizationResult } from '../lib/optimizer';
 
 interface ResultsPanelProps {
   result: OptimizationResult | null;
   playerNames: string[];
+  playerActive: boolean[];
   t: TranslateFunction;
 }
 
-export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
+export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPanelProps) {
   if (!result) {
     return (
       <div className="results-empty">
@@ -117,6 +118,40 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
 
   const activeBossResults = result.bossResults.filter(r => r.summons > 0);
 
+  // Calculate required materials per player after trades
+  const getPlayerMaterialRequirements = () => {
+    const requirements: Record<number, Record<MaterialKey | 'stygian', number>> = {};
+
+    for (let p = 0; p < 4; p++) {
+      if (!playerActive[p]) continue;
+
+      requirements[p] = {} as Record<MaterialKey | 'stygian', number>;
+
+      // For each boss the player participates in
+      for (const bossResult of activeBossResults) {
+        const boss = BOSS_LIST.find(b => b.id === bossResult.bossId)!;
+        const playerDuties = result.playerDuties[p]?.[bossResult.bossId as BossId] || 0;
+
+        if (playerDuties > 0) {
+          const materialNeeded = playerDuties * boss.cost;
+          const stygianForBoss = result.stygianUsagePerPlayer[p]?.[bossResult.bossId as BossId] || 0;
+          const specificMaterialNeeded = materialNeeded - stygianForBoss;
+
+          if (specificMaterialNeeded > 0) {
+            requirements[p][boss.materialKey] = (requirements[p][boss.materialKey] || 0) + specificMaterialNeeded;
+          }
+          if (stygianForBoss > 0) {
+            requirements[p]['stygian'] = (requirements[p]['stygian'] || 0) + stygianForBoss;
+          }
+        }
+      }
+    }
+
+    return requirements;
+  };
+
+  const playerRequirements = getPlayerMaterialRequirements();
+
   return (
     <div className="results-panel">
       {/* Header */}
@@ -202,6 +237,51 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
             })}
           </div>
         )}
+      </div>
+
+      {/* Verification Section */}
+      <div className="verification-section">
+        <h3 className="verification-title">
+          <CheckCircle size={14} />
+          {t('sec_verification')}
+        </h3>
+        <p className="verification-hint">{t('txt_after_trades')}</p>
+
+        <div className="verification-grid">
+          {Object.entries(playerRequirements).map(([playerIdx, materials]) => {
+            const idx = parseInt(playerIdx);
+            const materialEntries = Object.entries(materials).filter(([, amount]) => amount > 0);
+
+            if (materialEntries.length === 0) return null;
+
+            return (
+              <div key={idx} className="player-verification">
+                <div className="player-verification-header">
+                  {getPlayerLabel(idx)}
+                </div>
+                <div className="player-materials">
+                  {materialEntries.map(([matKey, amount]) => {
+                    const materialKey = matKey as MaterialKey | 'stygian';
+                    return (
+                      <div
+                        key={matKey}
+                        className="material-requirement"
+                        style={{ '--mat-color': getMaterialColor(materialKey) } as React.CSSProperties}
+                      >
+                        <img
+                          src={MATERIAL_ICONS[materialKey]}
+                          alt=""
+                          className="material-req-icon"
+                        />
+                        <span className="material-req-amount">{amount}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <style>{`
@@ -446,6 +526,92 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
         .trades-list::-webkit-scrollbar-thumb {
           background: var(--color-border);
           border-radius: 2px;
+        }
+
+        /* Verification Section */
+        .verification-section {
+          padding: 0.875rem 1rem;
+          border-top: 1px solid var(--color-border-subtle);
+          background: rgba(0, 0, 0, 0.15);
+        }
+
+        .verification-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: var(--color-gold);
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.375rem;
+        }
+
+        .verification-title svg {
+          color: var(--color-gold);
+          opacity: 0.8;
+        }
+
+        .verification-hint {
+          color: var(--color-text-muted);
+          font-size: 0.8125rem;
+          margin: 0 0 0.75rem;
+          font-style: italic;
+        }
+
+        .verification-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          gap: 0.5rem;
+        }
+
+        .player-verification {
+          background: var(--color-bg-void);
+          border: 1px solid var(--color-border);
+          animation: slideUp 0.3s ease-out both;
+        }
+
+        .player-verification-header {
+          padding: 0.375rem 0.5rem;
+          font-family: var(--font-display);
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: var(--color-gold);
+          background: rgba(201, 162, 39, 0.1);
+          border-bottom: 1px solid var(--color-border-subtle);
+          text-align: center;
+        }
+
+        .player-materials {
+          padding: 0.5rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.375rem;
+          justify-content: center;
+        }
+
+        .material-requirement {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid var(--color-border-subtle);
+          border-left: 2px solid var(--mat-color);
+        }
+
+        .material-req-icon {
+          width: 20px;
+          height: 20px;
+          object-fit: contain;
+          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+        }
+
+        .material-req-amount {
+          font-family: var(--font-mono);
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--color-text-primary);
         }
 
         @media (max-width: 480px) {

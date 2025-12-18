@@ -246,6 +246,7 @@ function App() {
             <ResultsPanel
               result={result}
               playerNames={playerNames}
+              playerActive={playerActive}
               t={t}
             />
           </div>
