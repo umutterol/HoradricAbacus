@@ -14,19 +14,23 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
     return (
         <header className="header" role="banner">
             <div className="header-content">
-                <div className="header-title">
-                    <img src="/logo.png" alt="Horadric Abacus - Diablo 4 Rota Optimizer" className="header-logo" />
+                <div className="header-brand">
+                    <img
+                        src="/logo.png"
+                        alt="Horadric Abacus - Diablo 4 Rota Optimizer"
+                        className="header-logo"
+                    />
                 </div>
                 <div className="header-actions">
                     <button
-                        className="header-btn help-btn"
+                        className="icon-btn"
                         onClick={onShowHelp}
                         aria-label="Show help and tutorial"
                     >
-                        <HelpCircle size={20} aria-hidden="true" />
+                        <HelpCircle size={18} strokeWidth={1.5} aria-hidden="true" />
                     </button>
                     <button
-                        className="header-btn lang-toggle"
+                        className="icon-btn lang-btn"
                         onClick={onToggleLanguage}
                         aria-label={`Switch language to ${nextLanguage}. Current: ${language.toUpperCase()}`}
                     >
@@ -36,85 +40,121 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
             </div>
 
             <style>{`
-        .header {
-          padding: 1.5rem;
-          border-bottom: 1px solid var(--color-border);
-          background: linear-gradient(180deg, rgba(28, 25, 23, 0.8) 0%, transparent 100%);
-        }
+                .header {
+                    position: relative;
+                    padding: 1.25rem 1.5rem;
+                    background: linear-gradient(180deg,
+                        rgba(20, 19, 24, 0.95) 0%,
+                        rgba(13, 12, 15, 0.8) 100%
+                    );
+                    border-bottom: 1px solid var(--color-border);
+                    backdrop-filter: blur(8px);
+                }
 
-        .header-content {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
+                .header::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 200px;
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent, var(--color-gold-dark), transparent);
+                }
 
-        .header-logo {
-          height: 56px;
-          width: auto;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
-        }
+                .header-content {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
 
-        .header-actions {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
+                .header-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
 
-        .header-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          background: rgba(0, 0, 0, 0.4);
-          border: 1px solid var(--color-border);
-          color: var(--color-text-secondary);
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: var(--font-body);
-          font-weight: 500;
-        }
+                .header-logo {
+                    height: 48px;
+                    width: auto;
+                    filter:
+                        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))
+                        drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+                    transition: filter 0.3s, transform 0.3s;
+                }
 
-        .header-btn:hover {
-          border-color: var(--color-gold);
-          color: var(--color-gold);
-        }
+                .header-logo:hover {
+                    filter:
+                        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))
+                        drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))
+                        drop-shadow(0 0 12px var(--color-gold-glow));
+                    transform: scale(1.02);
+                }
 
-        .help-btn {
-          width: 44px;
-          height: 44px;
-          padding: 0;
-        }
+                .header-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
 
-        .lang-toggle {
-          width: 44px;
-          height: 44px;
-          padding: 0;
-        }
+                .icon-btn {
+                    width: 40px;
+                    height: 40px;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: transparent;
+                    border: 1px solid var(--color-border);
+                    color: var(--color-text-secondary);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
 
-        .flag-icon {
-          font-size: 1.5rem;
-          line-height: 1;
-        }
+                .icon-btn:hover {
+                    border-color: var(--color-bronze);
+                    color: var(--color-gold);
+                    background: rgba(201, 162, 39, 0.05);
+                }
 
-        @media (max-width: 640px) {
-          .header-logo {
-            height: 40px;
-          }
+                .icon-btn:active {
+                    transform: scale(0.96);
+                }
 
-          .help-btn,
-          .lang-toggle {
-            width: 40px;
-            height: 40px;
-          }
+                .lang-btn {
+                    font-size: 1.125rem;
+                }
 
-          .flag-icon {
-            font-size: 1.25rem;
-          }
-        }
-      `}</style>
+                .flag-icon {
+                    line-height: 1;
+                }
+
+                @media (max-width: 640px) {
+                    .header {
+                        padding: 1rem;
+                    }
+
+                    .header-logo {
+                        height: 36px;
+                    }
+
+                    .icon-btn {
+                        width: 36px;
+                        height: 36px;
+                    }
+
+                    .icon-btn svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+
+                    .lang-btn {
+                        font-size: 1rem;
+                    }
+                }
+            `}</style>
         </header>
     );
 }

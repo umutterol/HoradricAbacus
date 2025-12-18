@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { DiabloButton } from './DiabloButton';
 import type { TranslateFunction } from '../hooks/useLanguage';
 
 interface ConfirmDialogProps {
@@ -14,18 +13,15 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
   const dialogRef = useRef<HTMLDivElement>(null);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Focus trap and escape key handling
   useEffect(() => {
     if (!isOpen) return;
 
-    // Focus the confirm button when dialog opens
     confirmButtonRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onCancel();
       }
-      // Trap focus within dialog
       if (e.key === 'Tab' && dialogRef.current) {
         const focusableElements = dialogRef.current.querySelectorAll(
           'button:not([disabled])'
@@ -44,7 +40,6 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    // Prevent body scroll when dialog is open
     document.body.style.overflow = 'hidden';
 
     return () => {
@@ -66,11 +61,11 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
     >
       <div
         ref={dialogRef}
-        className="dialog-content"
+        className="dialog-box"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="dialog-icon">
-          <AlertTriangle size={32} />
+          <AlertTriangle size={28} strokeWidth={1.5} />
         </div>
         <h2 id="dialog-title" className="dialog-title">
           {t('dlg_reset_title')}
@@ -79,21 +74,19 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
           {t('dlg_reset_message')}
         </p>
         <div className="dialog-actions">
-          <DiabloButton
+          <button
             ref={confirmButtonRef}
-            variant="primary"
-            size="md"
+            className="dialog-btn dialog-btn--danger"
             onClick={onConfirm}
           >
             {t('dlg_confirm')}
-          </DiabloButton>
-          <DiabloButton
-            variant="secondary"
-            size="md"
+          </button>
+          <button
+            className="dialog-btn dialog-btn--cancel"
             onClick={onCancel}
           >
             {t('dlg_cancel')}
-          </DiabloButton>
+          </button>
         </div>
       </div>
 
@@ -101,24 +94,25 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
         .dialog-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.8);
+          background: rgba(8, 7, 10, 0.9);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
-          animation: fadeIn 0.2s ease-out;
+          animation: dialogFadeIn 0.2s ease-out;
           padding: 1rem;
+          backdrop-filter: blur(4px);
         }
 
-        @keyframes fadeIn {
+        @keyframes dialogFadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
 
-        @keyframes slideIn {
+        @keyframes dialogSlideIn {
           from {
             opacity: 0;
-            transform: scale(0.95) translateY(-10px);
+            transform: scale(0.96) translateY(-8px);
           }
           to {
             opacity: 1;
@@ -126,25 +120,35 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
           }
         }
 
-        .dialog-content {
+        .dialog-box {
           position: relative;
-          background: var(--color-bg-secondary);
-          border: 2px solid var(--color-border-accent);
+          background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-secondary) 100%);
+          border: 1px solid var(--color-border);
           padding: 1.5rem;
-          max-width: 400px;
+          max-width: 360px;
           width: 100%;
           text-align: center;
-          animation: slideIn 0.2s ease-out;
-          overflow: hidden;
+          animation: dialogSlideIn 0.25s ease-out;
+          box-shadow: var(--shadow-lg), 0 0 40px rgba(0, 0, 0, 0.5);
         }
 
-        .dialog-content::before {
+        .dialog-box::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: url('/texture-demonic.png') center/contain no-repeat;
-          opacity: 0.06;
+          background: url('/texture-demonic.png') center/300px repeat;
+          opacity: 0.03;
           pointer-events: none;
+        }
+
+        .dialog-box::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--color-bronze), transparent);
         }
 
         .dialog-icon {
@@ -152,10 +156,12 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
           justify-content: center;
           margin-bottom: 1rem;
           color: var(--color-gold);
+          position: relative;
         }
 
         .dialog-title {
-          font-size: 1.25rem;
+          font-size: 1rem;
+          font-weight: 600;
           margin: 0 0 0.75rem;
           position: relative;
         }
@@ -163,21 +169,59 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel, t }: ConfirmDialogP
         .dialog-message {
           color: var(--color-text-secondary);
           margin: 0 0 1.5rem;
-          font-size: 0.9375rem;
-          line-height: 1.5;
+          font-size: 0.875rem;
+          line-height: 1.6;
           position: relative;
         }
 
         .dialog-actions {
           display: flex;
-          gap: 0.75rem;
+          gap: 0.5rem;
           justify-content: center;
           position: relative;
         }
 
-        @media (max-width: 480px) {
+        .dialog-btn {
+          padding: 0.5rem 1rem;
+          font-family: var(--font-display);
+          font-size: 0.75rem;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          border: 1px solid;
+          cursor: pointer;
+          transition: all 0.15s;
+          min-width: 100px;
+        }
+
+        .dialog-btn--danger {
+          background: linear-gradient(180deg, var(--color-blood-light) 0%, var(--color-blood) 100%);
+          border-color: var(--color-blood-light);
+          color: var(--color-text-primary);
+        }
+
+        .dialog-btn--danger:hover {
+          background: linear-gradient(180deg, #9b2c2c 0%, var(--color-blood-light) 100%);
+        }
+
+        .dialog-btn--cancel {
+          background: var(--color-bg-void);
+          border-color: var(--color-border);
+          color: var(--color-text-secondary);
+        }
+
+        .dialog-btn--cancel:hover {
+          border-color: var(--color-bronze);
+          color: var(--color-text-primary);
+        }
+
+        @media (max-width: 400px) {
           .dialog-actions {
             flex-direction: column;
+          }
+
+          .dialog-btn {
+            width: 100%;
           }
         }
       `}</style>

@@ -51,9 +51,9 @@ export function Footer({
 
       <style>{`
         .footer {
-          padding: 1rem 1.5rem;
-          border-top: 1px solid var(--color-border);
-          background: linear-gradient(0deg, rgba(28, 25, 23, 0.8) 0%, transparent 100%);
+          padding: 1.25rem 1.5rem;
+          border-top: 1px solid var(--color-border-subtle);
+          background: linear-gradient(180deg, transparent 0%, rgba(8, 7, 10, 0.5) 100%);
         }
 
         .footer-content {
@@ -63,33 +63,32 @@ export function Footer({
           flex-direction: column;
           align-items: center;
           gap: 0.5rem;
-          text-align: center;
         }
 
         .footer-row {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
           flex-wrap: wrap;
           justify-content: center;
         }
 
         .footer-separator {
           color: var(--color-border);
-          font-size: 0.75rem;
+          font-size: 0.875rem;
         }
 
         .footer-copyright {
           margin: 0;
           color: var(--color-text-secondary);
-          font-size: 0.75rem;
+          font-size: 0.875rem;
         }
 
         .footer-attribution {
           margin: 0;
           color: var(--color-gold);
-          font-family: var(--font-heading);
-          font-size: 0.75rem;
+          font-family: var(--font-display);
+          font-size: 0.875rem;
         }
 
         .footer-links {
@@ -101,8 +100,8 @@ export function Footer({
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 28px;
-          height: 28px;
+          width: 32px;
+          height: 32px;
           color: var(--color-text-secondary);
           border: 1px solid var(--color-border);
           background: rgba(0, 0, 0, 0.3);
@@ -116,23 +115,23 @@ export function Footer({
 
         .footer-disclaimer {
           margin: 0;
-          color: var(--color-text-secondary);
-          font-size: 0.625rem;
-          opacity: 0.6;
+          color: var(--color-text-muted);
+          font-size: 0.75rem;
+          opacity: 0.7;
         }
 
         @media (max-width: 640px) {
           .footer {
-            padding: 0.75rem 1rem;
+            padding: 1rem;
           }
 
           .footer-copyright,
           .footer-attribution {
-            font-size: 0.6875rem;
+            font-size: 0.8125rem;
           }
 
           .footer-disclaimer {
-            font-size: 0.5625rem;
+            font-size: 0.6875rem;
           }
         }
       `}</style>

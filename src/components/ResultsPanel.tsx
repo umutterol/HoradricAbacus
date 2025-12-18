@@ -13,79 +13,93 @@ interface ResultsPanelProps {
 export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
   if (!result) {
     return (
-      <div className="results-tutorial">
-        <div className="tutorial-welcome">
-          <img src="/logo.png" alt="Horadric Abacus" className="tutorial-logo" />
-          <p className="welcome-text">{t('tut_welcome')}</p>
+      <div className="results-empty">
+        <div className="empty-content">
+          <img src="/logo.png" alt="Horadric Abacus" className="empty-logo" />
+          <p className="empty-welcome">{t('tut_welcome')}</p>
+          <div className="empty-divider" />
+          <h3 className="empty-title">{t('tut_how_to')}</h3>
+          <ol className="empty-steps">
+            <li>{t('tut_step1')}</li>
+            <li>{t('tut_step2')}</li>
+            <li>{t('tut_step3')}</li>
+            <li>{t('tut_step4')}</li>
+          </ol>
         </div>
-        <h3 className="tutorial-title">{t('tut_how_to')}</h3>
-        <ol className="tutorial-steps">
-          <li>{t('tut_step1')}</li>
-          <li>{t('tut_step2')}</li>
-          <li>{t('tut_step3')}</li>
-          <li>{t('tut_step4')}</li>
-        </ol>
         <style>{`
-          .results-tutorial {
+          .results-empty {
             position: relative;
-            background: var(--color-bg-secondary);
+            background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-secondary) 100%);
             border: 1px solid var(--color-border);
-            padding: 1.5rem;
-            overflow: hidden;
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
           }
 
-          .results-tutorial::before {
+          .results-empty::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: url('/texture-demonic.png') center/contain no-repeat;
-            opacity: 0.05;
+            background: url('/texture-demonic.png') center/400px repeat;
+            opacity: 0.02;
             pointer-events: none;
           }
 
-          .tutorial-welcome {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--color-border);
-          }
-
-          .tutorial-logo {
-            height: 80px;
-            width: auto;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
-          }
-
-          .welcome-text {
-            color: var(--color-text-secondary);
+          .empty-content {
+            position: relative;
+            z-index: 1;
             text-align: center;
-            margin: 0;
-            font-size: 0.9375rem;
-            line-height: 1.5;
+            padding: 2rem 2.5rem;
+            max-width: 400px;
           }
 
-          .tutorial-title {
-             color: var(--color-gold);
-             font-family: var(--font-heading);
-             font-size: 1.125rem;
-             margin: 0 0 1rem;
+          .empty-logo {
+            height: 64px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter:
+              drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))
+              drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
           }
 
-          .tutorial-steps {
-            margin: 0;
-            padding-left: 1.25rem;
-            list-style-type: decimal;
+          .empty-welcome {
             color: var(--color-text-secondary);
-            font-size: 0.9375rem;
+            font-size: 1rem;
             line-height: 1.6;
+            margin: 0 0 1.25rem;
           }
 
-          .tutorial-steps li {
+          .empty-divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--color-bronze), transparent);
+            margin: 0 auto 1.25rem;
+          }
+
+          .empty-title {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            color: var(--color-gold);
+          }
+
+          .empty-steps {
+            text-align: left;
+            margin: 0;
+            padding-left: 1.5rem;
+            color: var(--color-text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+            list-style: decimal;
+          }
+
+          .empty-steps li {
             margin-bottom: 0.5rem;
+          }
+
+          .empty-steps li::marker {
+            color: var(--color-bronze);
           }
         `}</style>
       </div>
@@ -101,44 +115,48 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
     return playerNames[index] || `P${index + 1}`;
   };
 
+  const activeBossResults = result.bossResults.filter(r => r.summons > 0);
+
   return (
     <div className="results-panel">
-      <h2 className="results-title">{t('sec_results')}</h2>
-
-      {/* Summary Section - Compact Horizontal */}
-      <div className="results-summary">
-        <div className="total-summons">
-          <Skull size={20} />
-          <div className="total-details">
-            <span className="total-label">{t('txt_total_kills')}</span>
-            <span className="party-size-label">({result.partySize} Players)</span>
-          </div>
+      {/* Header */}
+      <div className="results-header">
+        <h2 className="results-title">{t('sec_results')}</h2>
+        <div className="total-badge">
+          <Skull size={16} />
           <span className="total-value">{result.totalSummons}</span>
-        </div>
-
-        <div className="boss-row">
-          {result.bossResults
-            .filter(r => r.summons > 0)
-            .map(r => {
-              const boss = BOSS_LIST.find(b => b.id === r.bossId)!;
-              return (
-                <div key={r.bossId} className="boss-chip">
-                  <span
-                    className="boss-dot"
-                    style={{ backgroundColor: MATERIAL_COLORS[boss.materialKey] }}
-                  />
-                  <span className="boss-name">{t(boss.nameKey)}</span>
-                  <span className="boss-count">×{r.summons}</span>
-                  {r.stygianUsed > 0 && (
-                    <span className="stygian-badge">+{r.stygianUsed}⬡</span>
-                  )}
-                </div>
-              );
-            })}
         </div>
       </div>
 
-      {/* Trades Section - Scrollable */}
+      {/* Boss Summary Grid */}
+      <div className="boss-summary">
+        {activeBossResults.map((r, idx) => {
+          const boss = BOSS_LIST.find(b => b.id === r.bossId)!;
+          return (
+            <div
+              key={r.bossId}
+              className="boss-card"
+              style={{
+                '--boss-color': MATERIAL_COLORS[boss.materialKey],
+                animationDelay: `${idx * 50}ms`
+              } as React.CSSProperties}
+            >
+              <div className="boss-color-bar" />
+              <div className="boss-info">
+                <span className="boss-name">{t(boss.nameKey)}</span>
+                <div className="boss-stats">
+                  <span className="boss-count">{r.summons}</span>
+                  {r.stygianUsed > 0 && (
+                    <span className="stygian-used">+{r.stygianUsed}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Trades Section */}
       <div className="trades-section">
         <h3 className="trades-title">{t('sec_trades')}</h3>
 
@@ -147,7 +165,6 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
         ) : (
           <div className="trades-list">
             {result.trades.map((trade, idx) => {
-              // For stygian trades, find which boss it's used for
               const stygianBossInfo = trade.material === 'stygian'
                 ? Object.entries(result.stygianUsagePerPlayer[trade.toPlayer])
                     .filter(([, amount]) => amount > 0)
@@ -158,19 +175,26 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
                 : null;
 
               return (
-                <div key={idx} className="trade-item">
-                  <span className="player-badge">{getPlayerLabel(trade.fromPlayer)}</span>
-                  <ArrowRight size={14} className="trade-arrow" />
-                  <span className="player-badge">{getPlayerLabel(trade.toPlayer)}</span>
+                <div
+                  key={idx}
+                  className="trade-row"
+                  style={{ animationDelay: `${idx * 30}ms` }}
+                >
+                  <span className="trade-player from">{getPlayerLabel(trade.fromPlayer)}</span>
+                  <ArrowRight size={12} className="trade-arrow" />
+                  <span className="trade-player to">{getPlayerLabel(trade.toPlayer)}</span>
                   <span
-                    className="trade-amount"
+                    className="trade-item"
                     style={{ color: getMaterialColor(trade.material) }}
                   >
-                    {trade.amount}× {t(trade.material === 'stygian' ? 'mat_stygian' : trade.material)}
+                    <span className="trade-amount">{trade.amount}x</span>
+                    <span className="trade-name">
+                      {t(trade.material === 'stygian' ? 'mat_stygian' : trade.material)}
+                    </span>
                   </span>
                   {stygianBossInfo && stygianBossInfo.length > 0 && (
-                    <span className="stygian-for-boss">
-                      → {stygianBossInfo.join(', ')}
+                    <span className="stygian-target">
+                      {stygianBossInfo.join(', ')}
                     </span>
                   )}
                 </div>
@@ -183,147 +207,159 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
       <style>{`
         .results-panel {
           position: relative;
-          background: var(--color-bg-secondary);
+          background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-secondary) 100%);
           border: 1px solid var(--color-border);
-          overflow: hidden;
-          animation: resultsFadeIn 0.4s ease-out;
           display: flex;
           flex-direction: column;
           flex: 1;
           min-height: 0;
-        }
-
-        @keyframes resultsFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          animation: slideUp 0.4s ease-out;
         }
 
         .results-panel::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: url('/texture-demonic.png') center/contain no-repeat;
-          opacity: 0.05;
+          background: url('/texture-demonic.png') center/400px repeat;
+          opacity: 0.02;
           pointer-events: none;
-          z-index: 0;
         }
 
         .results-panel > * {
           position: relative;
           z-index: 1;
         }
-        
+
+        /* Header */
+        .results-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.875rem 1rem;
+          border-bottom: 1px solid var(--color-border-subtle);
+        }
+
         .results-title {
           font-size: 1rem;
-          padding: 0.75rem 1rem;
-          margin: 0;
-          border-bottom: 1px solid var(--color-border);
+          font-weight: 500;
+          letter-spacing: 0.05em;
         }
-        
-        .results-summary {
-          padding: 1rem;
-          border-bottom: 1px solid var(--color-border);
-        }
-        
-        .total-summons {
+
+        .total-badge {
           display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 0.75rem;
-        }
-        
-        .total-details {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .total-summons svg {
-          color: var(--color-red);
-        }
-        
-        .total-label {
-          color: var(--color-text-secondary);
-          font-size: 0.875rem;
-        }
-        
-        .party-size-label {
-           color: var(--color-text-secondary);
-           font-size: 0.75rem;
-           opacity: 0.7;
-        }
-        
-        .total-value {
-          font-size: 1.25rem;
-          font-family: var(--font-heading);
-          color: var(--color-gold);
-          font-weight: 700;
-          margin-left: auto;
-        }
-        
-        .boss-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-        }
-        
-        .boss-chip {
-          display: inline-flex;
           align-items: center;
           gap: 0.375rem;
-          padding: 0.25rem 0.5rem;
-          background: rgba(0, 0, 0, 0.3);
+          padding: 0.25rem 0.625rem;
+          background: linear-gradient(180deg, var(--color-blood-light) 0%, var(--color-blood) 100%);
+          border: 1px solid var(--color-blood-light);
+        }
+
+        .total-badge svg {
+          color: var(--color-text-primary);
+          opacity: 0.8;
+        }
+
+        .total-value {
+          font-family: var(--font-display);
+          font-size: 1rem;
+          font-weight: 600;
+          color: var(--color-text-primary);
+        }
+
+        /* Boss Summary */
+        .boss-summary {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 0.5rem;
+          padding: 0.875rem 1rem;
+          border-bottom: 1px solid var(--color-border-subtle);
+        }
+
+        .boss-card {
+          position: relative;
+          background: var(--color-bg-void);
           border: 1px solid var(--color-border);
-          font-size: 0.75rem;
+          padding: 0.5rem 0.625rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          animation: slideUp 0.3s ease-out both;
+          transition: border-color 0.2s, background 0.2s;
         }
-        
-        .boss-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
+
+        .boss-card:hover {
+          border-color: var(--color-bronze);
+          background: rgba(255, 255, 255, 0.02);
         }
-        
+
+        .boss-color-bar {
+          width: 3px;
+          height: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: var(--boss-color);
+          opacity: 0.8;
+        }
+
+        .boss-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.125rem;
+          padding-left: 0.25rem;
+        }
+
         .boss-name {
+          font-size: 0.8125rem;
           color: var(--color-text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
         }
-        
+
+        .boss-stats {
+          display: flex;
+          align-items: baseline;
+          gap: 0.25rem;
+        }
+
         .boss-count {
+          font-family: var(--font-display);
+          font-size: 1.125rem;
           font-weight: 600;
           color: var(--color-gold);
         }
-        
-        .stygian-badge {
-          color: var(--color-stygian);
+
+        .stygian-used {
           font-size: 0.625rem;
+          color: var(--color-stygian);
+          font-weight: 500;
         }
-        
+
+        /* Trades Section */
         .trades-section {
-          padding: 0.75rem 1rem;
           flex: 1;
           display: flex;
           flex-direction: column;
           min-height: 0;
-          overflow: hidden;
+          padding: 0.875rem 1rem;
         }
-        
+
         .trades-title {
           font-size: 0.875rem;
-          color: var(--color-gold);
-          margin: 0 0 0.5rem;
-        }
-        
-        .no-trades {
+          font-weight: 500;
           color: var(--color-text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.625rem;
+        }
+
+        .no-trades {
+          color: var(--color-text-muted);
+          font-size: 0.9375rem;
           font-style: italic;
-          font-size: 0.875rem;
           margin: 0;
         }
-        
+
         .trades-list {
           display: flex;
           flex-direction: column;
@@ -332,50 +368,75 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
           overflow-y: auto;
           min-height: 0;
         }
-        
-        .trade-item {
+
+        .trade-row {
           display: flex;
           align-items: center;
           gap: 0.375rem;
-          padding: 0.375rem 0.5rem;
-          background: rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(138, 106, 75, 0.3);
+          padding: 0.5rem 0.625rem;
+          background: rgba(0, 0, 0, 0.25);
+          border: 1px solid var(--color-border-subtle);
+          font-size: 0.875rem;
+          animation: slideUp 0.3s ease-out both;
+          transition: background 0.15s;
+        }
+
+        .trade-row:hover {
+          background: rgba(0, 0, 0, 0.35);
+        }
+
+        .trade-player {
+          padding: 0.1875rem 0.5rem;
+          font-family: var(--font-display);
+          font-size: 0.8125rem;
+          font-weight: 500;
+          max-width: 72px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .trade-player.from {
+          background: var(--color-bronze-dark);
+          color: var(--color-text-primary);
+        }
+
+        .trade-player.to {
+          background: var(--color-gold-dark);
+          color: var(--color-text-primary);
+        }
+
+        .trade-arrow {
+          color: var(--color-text-muted);
+          flex-shrink: 0;
+        }
+
+        .trade-item {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          margin-left: auto;
+          font-weight: 500;
+        }
+
+        .trade-amount {
+          font-family: var(--font-mono);
           font-size: 0.8125rem;
         }
 
-        .player-badge {
-          background: var(--color-border);
-          color: var(--color-text-primary);
-          padding: 0.125rem 0.375rem;
-          font-weight: 600;
-          font-size: 0.75rem;
-          /* Handle long names seamlessly */
-          max-width: 100px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        
-        .trade-arrow {
-          color: var(--color-text-secondary);
-          flex-shrink: 0;
-        }
-        
-        .trade-amount {
-          font-weight: 500;
-          margin-left: 0.25rem;
+        .trade-name {
+          font-size: 0.8125rem;
         }
 
-        .stygian-for-boss {
+        .stygian-target {
           color: var(--color-stygian);
           font-size: 0.75rem;
-          font-style: italic;
-          margin-left: 0.25rem;
+          opacity: 0.8;
         }
 
-        /* Scrollbar styling for trades list */
+        /* Scrollbar */
         .trades-list::-webkit-scrollbar {
-          width: 6px;
+          width: 4px;
         }
 
         .trades-list::-webkit-scrollbar-track {
@@ -384,6 +445,17 @@ export function ResultsPanel({ result, playerNames, t }: ResultsPanelProps) {
 
         .trades-list::-webkit-scrollbar-thumb {
           background: var(--color-border);
+          border-radius: 2px;
+        }
+
+        @media (max-width: 480px) {
+          .boss-summary {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .trade-name {
+            display: none;
+          }
         }
       `}</style>
     </div>

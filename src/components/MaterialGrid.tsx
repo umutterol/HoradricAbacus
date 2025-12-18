@@ -1,4 +1,4 @@
-import { BOSS_LIST, MATERIAL_ICONS } from '../constants';
+import { BOSS_LIST, MATERIAL_ICONS, MATERIAL_COLORS } from '../constants';
 import type { MaterialKey } from '../constants';
 import type { TranslateFunction } from '../hooks/useLanguage';
 import type { PlayerInventory } from '../lib/optimizer';
@@ -23,16 +23,18 @@ export function MaterialGrid({
   onNameChange,
   t
 }: MaterialGridProps) {
-  const materials: { key: MaterialKey | 'stygian'; labelKey: string; icon: string }[] = [
+  const materials: { key: MaterialKey | 'stygian'; labelKey: string; icon: string; color: string }[] = [
     ...BOSS_LIST.map(boss => ({
       key: boss.materialKey,
       labelKey: boss.materialKey,
       icon: MATERIAL_ICONS[boss.materialKey],
+      color: MATERIAL_COLORS[boss.materialKey],
     })),
     {
       key: 'stygian' as const,
       labelKey: 'mat_stygian',
       icon: MATERIAL_ICONS.stygian,
+      color: MATERIAL_COLORS.stygian,
     },
   ];
 
@@ -41,7 +43,6 @@ export function MaterialGrid({
     arr.findIndex(x => x.key === m.key) === i
   );
 
-  // Helper to format aria labels with placeholders
   const formatAriaLabel = (key: string, ...args: (string | number)[]): string => {
     let label = t(key);
     args.forEach((arg, idx) => {
@@ -51,336 +52,397 @@ export function MaterialGrid({
   };
 
   return (
-    <div className="material-grid-container" role="region" aria-label="Material inputs">
-      {/* Player headers with checkboxes and name inputs */}
-      <div className="player-headers">
-        <div className="icon-spacer" aria-hidden="true"></div>
+    <div className="material-grid" role="region" aria-label="Material inputs">
+      {/* Player Headers */}
+      <div className="grid-header">
+        <div className="header-spacer" />
         {[0, 1, 2, 3].map(playerIndex => (
-          <div key={playerIndex} className="player-header-cell">
-            <label className="player-toggle">
-              <input
-                type="checkbox"
-                checked={playerActive[playerIndex]}
-                onChange={() => onPlayerToggle(playerIndex)}
-                className="player-checkbox"
-                aria-label={formatAriaLabel('aria_player_toggle', playerIndex + 1)}
-              />
-              <span className="player-toggle-indicator" aria-hidden="true" />
-            </label>
+          <div
+            key={playerIndex}
+            className={`player-header ${playerActive[playerIndex] ? 'active' : 'inactive'}`}
+          >
             <input
               type="text"
-              className={`player-name-input ${!playerActive[playerIndex] ? 'inactive' : ''}`}
+              className="player-name"
               value={playerNames[playerIndex]}
               placeholder={`P${playerIndex + 1}`}
               onChange={(e) => onNameChange(playerIndex, e.target.value)}
-              maxLength={10}
+              maxLength={8}
               aria-label={formatAriaLabel('aria_player_name', playerIndex + 1)}
-              disabled={!playerActive[playerIndex]}
+            />
+            <button
+              type="button"
+              className="player-toggle-btn"
+              onClick={() => onPlayerToggle(playerIndex)}
+              aria-pressed={playerActive[playerIndex]}
+              aria-label={formatAriaLabel('aria_player_toggle', playerIndex + 1)}
             />
           </div>
         ))}
       </div>
 
-      {/* Material rows */}
-      <div className="material-rows" role="list">
-        {uniqueMaterials.map(material => (
-          <div
-            key={material.key}
-            className={`material-row ${material.key === 'stygian' ? 'stygian-row' : ''}`}
-            role="listitem"
-          >
+      {/* Material Rows */}
+      <div className="grid-body">
+        {uniqueMaterials.map((material, idx) => {
+          const isStygian = material.key === 'stygian';
+          return (
             <div
-              className="material-icon-wrapper"
-              data-tooltip={t(material.labelKey)}
-              aria-label={t(material.labelKey)}
+              key={material.key}
+              className={`material-row ${isStygian ? 'stygian-row' : ''}`}
+              style={{ animationDelay: `${idx * 30}ms` }}
             >
-              <img
-                src={material.icon}
-                alt={t(material.labelKey)}
-                className="material-icon"
-                loading="lazy"
-              />
+              {/* Material Info */}
+              <div className="material-info">
+                <div
+                  className="material-icon-container"
+                  style={{ '--material-color': material.color } as React.CSSProperties}
+                >
+                  <img
+                    src={material.icon}
+                    alt=""
+                    className="material-icon"
+                    loading="lazy"
+                  />
+                </div>
+                <span className="material-name">{t(material.labelKey)}</span>
+              </div>
+
+              {/* Input Cells */}
+              <div className="input-cells">
+                {inventories.map((inv, playerIndex) => (
+                  <input
+                    key={playerIndex}
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    min="0"
+                    value={inv[material.key] || ''}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      onInventoryChange(playerIndex, material.key, Math.max(0, val));
+                    }}
+                    placeholder="0"
+                    className={`material-input ${!playerActive[playerIndex] ? 'inactive' : ''}`}
+                    disabled={!playerActive[playerIndex]}
+                    aria-label={formatAriaLabel('aria_material_input', t(material.labelKey), playerIndex + 1)}
+                  />
+                ))}
+              </div>
             </div>
-            {inventories.map((inv, playerIndex) => (
-              <input
-                key={playerIndex}
-                type="number"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                min="0"
-                value={inv[material.key] || ''}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value) || 0;
-                  onInventoryChange(playerIndex, material.key, Math.max(0, val));
-                }}
-                placeholder="0"
-                className={`material-input ${!playerActive[playerIndex] ? 'inactive' : ''}`}
-                disabled={!playerActive[playerIndex]}
-                aria-label={formatAriaLabel('aria_material_input', t(material.labelKey), playerIndex + 1)}
-              />
-            ))}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <style>{`
-        .material-grid-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+        .material-grid {
           padding: 1rem;
-          gap: 0.5rem;
-        }
-
-        .player-headers {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .icon-spacer {
-          width: 44px;
-        }
-
-        .player-header-cell {
-          width: 68px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.375rem;
-        }
-
-        /* Custom checkbox styling for better touch targets */
-        .player-toggle {
           position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 44px;
-          height: 32px;
-          cursor: pointer;
-        }
-
-        .player-checkbox {
-          position: absolute;
-          opacity: 0;
-          width: 100%;
-          height: 100%;
-          cursor: pointer;
-          margin: 0;
           z-index: 1;
         }
 
-        .player-toggle-indicator {
-          width: 20px;
-          height: 20px;
-          border: 2px solid var(--color-border);
-          background: rgba(0, 0, 0, 0.3);
-          transition: all 0.2s ease;
+        /* Header Row */
+        .grid-header {
           display: flex;
-          align-items: center;
-          justify-content: center;
+          align-items: flex-end;
+          gap: 0.375rem;
+          padding-bottom: 0.75rem;
+          margin-bottom: 0.5rem;
+          border-bottom: 1px solid var(--color-border-subtle);
         }
 
-        .player-toggle-indicator::after {
-          content: '';
-          width: 10px;
-          height: 10px;
-          background: var(--color-gold);
-          opacity: 0;
-          transform: scale(0);
-          transition: all 0.2s ease;
+        .header-spacer {
+          width: 180px;
+          flex-shrink: 0;
         }
 
-        .player-checkbox:checked + .player-toggle-indicator {
-          border-color: var(--color-gold);
-          background: rgba(252, 211, 77, 0.1);
-        }
-
-        .player-checkbox:checked + .player-toggle-indicator::after {
-          opacity: 1;
-          transform: scale(1);
-        }
-
-        .player-checkbox:focus-visible + .player-toggle-indicator {
-          outline: 2px solid var(--color-gold);
-          outline-offset: 2px;
-        }
-
-        .player-toggle:hover .player-toggle-indicator {
-          border-color: var(--color-gold-dark);
-        }
-
-        .player-name-input {
-          width: 100%;
-          background: rgba(0, 0, 0, 0.4);
-          border: 1px solid var(--color-border);
-          color: var(--color-gold);
-          font-family: var(--font-heading);
-          font-weight: 600;
-          font-size: 0.85rem;
-          text-align: center;
-          padding: 0.375rem 0.25rem;
-          transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-        }
-
-        .player-name-input:hover:not(:disabled) {
-          border-color: var(--color-gold-dark);
-        }
-
-        .player-name-input:focus {
-          outline: none;
-          border-color: var(--color-gold);
-          background: rgba(0, 0, 0, 0.5);
-          box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-        }
-
-        .player-name-input::placeholder {
-           color: var(--color-text-secondary);
-           opacity: 0.8;
-           font-style: italic;
-        }
-
-        .player-name-input.inactive {
-          color: var(--color-text-secondary);
-          opacity: 0.4;
-          border-color: rgba(138, 106, 75, 0.5);
-        }
-
-        .material-rows {
+        /* Player Header */
+        .player-header {
           display: flex;
           flex-direction: column;
+          align-items: center;
+          width: 52px;
           gap: 0.375rem;
+          transition: opacity 0.2s;
         }
 
+        .player-header.inactive {
+          opacity: 0.4;
+        }
+
+        /* Player Name Input */
+        .player-name {
+          width: 48px;
+          height: 28px;
+          padding: 0 0.25rem;
+          text-align: center;
+          font-family: var(--font-display);
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: var(--color-gold);
+          background: transparent;
+          border: 1px solid transparent;
+          letter-spacing: 0.02em;
+          box-shadow: none;
+        }
+
+        .player-header.inactive .player-name {
+          color: var(--color-text-muted);
+        }
+
+        .player-name:hover {
+          border-color: var(--color-border);
+        }
+
+        .player-name:focus {
+          border-color: var(--color-gold-dark);
+          background: var(--color-bg-void);
+          box-shadow: var(--shadow-inset);
+        }
+
+        .player-name::placeholder {
+          color: var(--color-text-muted);
+        }
+
+        /* Toggle Button */
+        .player-toggle-btn {
+          width: 36px;
+          height: 8px;
+          padding: 0;
+          border: 1px solid var(--color-border);
+          background: var(--color-bg-void);
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .player-toggle-btn:hover {
+          border-color: var(--color-bronze);
+          background: rgba(109, 90, 58, 0.3);
+        }
+
+        .player-header.active .player-toggle-btn {
+          background: linear-gradient(180deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+          border-color: var(--color-gold);
+          box-shadow: 0 0 8px var(--color-gold-glow);
+        }
+
+        .player-header.active .player-toggle-btn:hover {
+          background: linear-gradient(180deg, var(--color-gold-light) 0%, var(--color-gold) 100%);
+        }
+
+        /* Grid Body */
+        .grid-body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        /* Material Row */
         .material-row {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 0.25rem;
-          transition: background-color 0.2s;
+          gap: 0.375rem;
+          padding: 0.25rem 0;
+          animation: slideUp 0.3s ease-out both;
+          border-radius: 2px;
+          transition: background-color 0.15s;
         }
 
         .material-row:hover {
-          background-color: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.02);
         }
 
-        .material-icon-wrapper {
-          width: 44px;
-          height: 44px;
+        /* Material Info (Icon + Name) */
+        .material-info {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          width: 180px;
+          flex-shrink: 0;
+        }
+
+        .material-icon-container {
+          width: 36px;
+          height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
-          cursor: help;
           position: relative;
-        }
-
-        /* Custom tooltip */
-        .material-icon-wrapper::after {
-          content: attr(data-tooltip);
-          position: absolute;
-          left: 50%;
-          bottom: 100%;
-          transform: translateX(-50%);
-          padding: 0.375rem 0.625rem;
-          background: var(--color-bg-primary);
-          border: 1px solid var(--color-border);
-          font-size: 0.75rem;
-          color: var(--color-text-primary);
-          white-space: nowrap;
-          opacity: 0;
-          visibility: hidden;
-          transition: opacity 0.2s, visibility 0.2s;
-          z-index: 100;
-          pointer-events: none;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
-        .material-icon-wrapper:hover::after,
-        .material-icon-wrapper:focus::after {
-          opacity: 1;
-          visibility: visible;
-        }
-
-        .material-icon {
-          width: 40px;
-          height: 40px;
-          object-fit: contain;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
           transition: transform 0.2s;
         }
 
-        .material-icon-wrapper:hover .material-icon {
-          transform: scale(1.15);
+        .material-row:hover .material-icon-container {
+          transform: scale(1.1);
         }
 
+        .material-icon-container::after {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          background: radial-gradient(circle, var(--material-color) 0%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.2s;
+          pointer-events: none;
+        }
+
+        .material-row:hover .material-icon-container::after {
+          opacity: 0.3;
+        }
+
+        .material-icon {
+          width: 32px;
+          height: 32px;
+          object-fit: contain;
+          filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+          position: relative;
+          z-index: 1;
+        }
+
+        .material-name {
+          font-size: 0.9375rem;
+          color: var(--color-text-secondary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          transition: color 0.15s;
+        }
+
+        .material-row:hover .material-name {
+          color: var(--color-text-primary);
+        }
+
+        /* Input Cells Container */
+        .input-cells {
+          display: flex;
+          gap: 0.375rem;
+        }
+
+        /* Material Input */
         .material-input {
-          width: 68px;
-          height: 44px;
+          width: 52px;
+          height: 34px;
           text-align: center;
-          padding: 0.375rem 0.25rem;
-          font-size: 0.9rem;
-          /* Remove spinners - standard way usually needs vendor prefixes */
-          -moz-appearance: textfield;
-        }
-
-        /* Remove arrows/spinners */
-        .material-input::-webkit-outer-spin-button,
-        .material-input::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
+          font-size: 0.9375rem;
+          padding: 0;
         }
 
         .material-input.inactive {
-          opacity: 0.3;
+          opacity: 0.25;
           cursor: not-allowed;
         }
 
+        .material-input:focus {
+          position: relative;
+          z-index: 2;
+        }
+
+        /* Stygian Row Special Styling */
         .stygian-row {
-          background: linear-gradient(90deg, rgba(124, 58, 237, 0.2) 0%, transparent 100%);
-          border-left: 3px solid var(--color-stygian);
-          padding-left: calc(0.25rem + 3px);
-          margin-left: -3px;
+          margin-top: 0.5rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid var(--color-border-subtle);
+          position: relative;
+        }
+
+        .stygian-row::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0.75rem;
+          bottom: 0;
+          width: 3px;
+          background: linear-gradient(180deg, var(--color-stygian) 0%, transparent 100%);
+          opacity: 0.6;
+        }
+
+        .stygian-row .material-icon-container::after {
+          background: radial-gradient(circle, var(--color-stygian) 0%, transparent 70%);
+        }
+
+        .stygian-row:hover .material-icon-container::after {
+          opacity: 0.5;
         }
 
         .stygian-row .material-icon {
-          filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.6));
+          filter: drop-shadow(0 0 6px var(--color-stygian-glow)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
         }
 
-        @media (max-width: 480px) {
-          .player-header-cell {
-            width: 56px;
+        .stygian-row .material-name {
+          color: var(--color-stygian);
+        }
+
+        /* Responsive */
+        @media (max-width: 520px) {
+          .header-spacer {
+            width: 140px;
           }
 
-          .player-toggle {
+          .material-info {
+            width: 140px;
+          }
+
+          .material-name {
+            font-size: 0.75rem;
+          }
+
+          .player-header {
             width: 44px;
-            height: 44px;
           }
 
-          .player-name-input {
-            font-size: 0.8rem;
+          .player-name {
+            width: 40px;
+            font-size: 0.6875rem;
+          }
+
+          .player-toggle-btn {
+            width: 30px;
           }
 
           .material-input {
-            width: 56px;
-            height: 44px;
-            padding: 0.25rem;
-            font-size: 0.8rem;
+            width: 44px;
+            height: 32px;
+            font-size: 0.75rem;
           }
 
-          .material-icon {
+          .material-icon-container {
             width: 32px;
             height: 32px;
           }
 
-          .material-icon-wrapper {
-            width: 36px;
-            height: 36px;
+          .material-icon {
+            width: 28px;
+            height: 28px;
+          }
+        }
+
+        @media (max-width: 400px) {
+          .material-grid {
+            padding: 0.75rem;
           }
 
-          .icon-spacer {
+          .header-spacer {
+            width: 48px;
+          }
+
+          .material-info {
+            width: 48px;
+          }
+
+          .material-name {
+            display: none;
+          }
+
+          .player-toggle-btn {
+            width: 28px;
+          }
+
+          .material-icon-container {
+            width: 40px;
+            height: 40px;
+          }
+
+          .material-icon {
             width: 36px;
+            height: 36px;
           }
         }
       `}</style>

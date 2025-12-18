@@ -39,7 +39,7 @@ export function Toast({ message, isVisible, onHide, duration = 3000 }: ToastProp
       role="status"
       aria-live="polite"
     >
-      <CheckCircle size={20} className="toast-icon" />
+      <CheckCircle size={18} strokeWidth={1.5} className="toast-icon" />
       <span className="toast-message">{message}</span>
 
       <style>{`
@@ -51,24 +51,25 @@ export function Toast({ message, isVisible, onHide, duration = 3000 }: ToastProp
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          padding: 0.75rem 1.25rem;
-          background: linear-gradient(135deg, rgba(22, 163, 74, 0.95) 0%, rgba(21, 128, 61, 0.95) 100%);
-          border: 1px solid rgba(74, 222, 128, 0.5);
-          color: white;
+          padding: 0.625rem 1rem;
+          background: linear-gradient(180deg, rgba(20, 83, 45, 0.95) 0%, rgba(22, 101, 52, 0.95) 100%);
+          border: 1px solid rgba(34, 197, 94, 0.4);
+          color: var(--color-text-primary);
+          font-size: 0.8125rem;
           font-weight: 500;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(22, 163, 74, 0.3);
+          box-shadow: var(--shadow-lg), 0 0 20px rgba(22, 101, 52, 0.3);
           z-index: 1001;
-          animation: toastSlideIn 0.3s ease-out;
+          animation: toastEnter 0.3s ease-out;
         }
 
         .toast--exiting {
-          animation: toastSlideOut 0.3s ease-in forwards;
+          animation: toastExit 0.3s ease-in forwards;
         }
 
-        @keyframes toastSlideIn {
+        @keyframes toastEnter {
           from {
             opacity: 0;
-            transform: translateX(-50%) translateY(20px);
+            transform: translateX(-50%) translateY(16px);
           }
           to {
             opacity: 1;
@@ -76,24 +77,24 @@ export function Toast({ message, isVisible, onHide, duration = 3000 }: ToastProp
           }
         }
 
-        @keyframes toastSlideOut {
+        @keyframes toastExit {
           from {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
           }
           to {
             opacity: 0;
-            transform: translateX(-50%) translateY(20px);
+            transform: translateX(-50%) translateY(16px);
           }
         }
 
         .toast-icon {
           flex-shrink: 0;
-          color: rgba(255, 255, 255, 0.9);
+          color: rgba(74, 222, 128, 0.9);
         }
 
         .toast-message {
-          font-size: 0.9375rem;
+          white-space: nowrap;
         }
 
         @media (max-width: 480px) {
@@ -105,10 +106,10 @@ export function Toast({ message, isVisible, onHide, duration = 3000 }: ToastProp
             justify-content: center;
           }
 
-          @keyframes toastSlideIn {
+          @keyframes toastEnter {
             from {
               opacity: 0;
-              transform: translateY(20px);
+              transform: translateY(16px);
             }
             to {
               opacity: 1;
@@ -116,14 +117,14 @@ export function Toast({ message, isVisible, onHide, duration = 3000 }: ToastProp
             }
           }
 
-          @keyframes toastSlideOut {
+          @keyframes toastExit {
             from {
               opacity: 1;
               transform: translateY(0);
             }
             to {
               opacity: 0;
-              transform: translateY(20px);
+              transform: translateY(16px);
             }
           }
         }

@@ -62,7 +62,6 @@ function clearStorage() {
 function App() {
   const { language, toggleLanguage, t } = useLanguage('en');
 
-  // Initialize state from localStorage or defaults
   const [inventories, setInventories] = useState<PlayerInventory[]>(() => {
     const stored = loadFromStorage();
     return stored?.inventories ?? [
@@ -94,18 +93,15 @@ function App() {
   const [showToast, setShowToast] = useState(false);
   const [showTutorialPopup, setShowTutorialPopup] = useState(false);
 
-  // Save to localStorage whenever relevant state changes
   useEffect(() => {
     saveToStorage({ inventories, playerNames, playerActive, priority });
   }, [inventories, playerNames, playerActive, priority]);
 
-  // Calculate which players have empty inventories
   const emptyPlayers = useMemo(() =>
     inventories.map(inv => isInventoryEmpty(inv)),
     [inventories]
   );
 
-  // Check if there's any valid input for optimization
   const hasValidInput = useMemo(() => {
     return inventories.some((inv, idx) =>
       playerActive[idx] && !isInventoryEmpty(inv)
@@ -145,7 +141,6 @@ function App() {
 
     setIsLoading(true);
 
-    // Small delay to show loading state
     setTimeout(() => {
       const activePlayerCount = playerActive.filter(Boolean).length;
       const optimization = optimizeRota(inventories, priority, playerActive, activePlayerCount);
@@ -197,10 +192,10 @@ function App() {
         onShowHelp={handleShowHelp}
       />
 
-      <main className="main-content" role="main" aria-label="Material optimizer">
-        <div className="content-grid">
-          {/* Left Column - Inputs */}
-          <div className="input-panel card">
+      <main className="main" role="main" aria-label="Material optimizer">
+        <div className="layout">
+          {/* Input Panel */}
+          <div className="panel panel--input">
             <MaterialGrid
               inventories={inventories}
               onInventoryChange={handleInventoryChange}
@@ -218,39 +213,36 @@ function App() {
               t={t}
             />
 
-            {/* Validation message */}
-            {!hasValidInput && (
-              <p className="validation-message" role="alert">
-                {t('txt_no_materials')}
-              </p>
-            )}
-
-            <div className="action-buttons">
-              <DiabloButton
-                variant="primary"
-                size="lg"
-                onClick={handleOptimize}
-                loading={isLoading}
-                disabled={!hasValidInput}
-                aria-label={t('btn_calculate')}
-              >
-                <Sparkles size={18} aria-hidden="true" />
-                {t('btn_calculate')}
-              </DiabloButton>
-              <DiabloButton
-                variant="secondary"
-                size="lg"
-                onClick={handleResetRequest}
-                aria-label={t('btn_reset')}
-              >
-                <RotateCcw size={18} aria-hidden="true" />
-                {t('btn_reset')}
-              </DiabloButton>
+            {/* Actions */}
+            <div className="actions">
+              <p className="actions-hint">{t('txt_no_materials')}</p>
+              <div className="actions-buttons">
+                <DiabloButton
+                  variant="primary"
+                  size="md"
+                  onClick={handleOptimize}
+                  disabled={!hasValidInput}
+                  loading={isLoading}
+                  aria-label={t('btn_calculate')}
+                >
+                  <Sparkles size={16} aria-hidden="true" />
+                  {t('btn_calculate')}
+                </DiabloButton>
+                <DiabloButton
+                  variant="secondary"
+                  size="md"
+                  onClick={handleResetRequest}
+                  aria-label={t('btn_reset')}
+                >
+                  <RotateCcw size={16} aria-hidden="true" />
+                  {t('btn_reset')}
+                </DiabloButton>
+              </div>
             </div>
           </div>
 
-          {/* Right Column - Results */}
-          <div className="results-panel-container">
+          {/* Results Panel */}
+          <div className="panel panel--results">
             <ResultsPanel
               result={result}
               playerNames={playerNames}
@@ -262,7 +254,6 @@ function App() {
 
       <Footer />
 
-      {/* Confirm Dialog */}
       <ConfirmDialog
         isOpen={showResetDialog}
         onConfirm={handleResetConfirm}
@@ -270,14 +261,12 @@ function App() {
         t={t}
       />
 
-      {/* Tutorial Popup */}
       <TutorialPopup
         isOpen={showTutorialPopup}
         onClose={handleCloseTutorial}
         t={t}
       />
 
-      {/* Success Toast */}
       <Toast
         message={t('toast_optimized')}
         isVisible={showToast}
@@ -291,86 +280,103 @@ function App() {
           flex-direction: column;
         }
 
-        .main-content {
+        .main {
           flex: 1;
-          padding: 1rem;
+          padding: 1.5rem;
           display: flex;
           justify-content: center;
         }
 
-        .content-grid {
+        .layout {
           display: grid;
           grid-template-columns: auto 1fr;
-          gap: 1rem;
-          align-items: stretch;
-          max-width: 1200px;
+          gap: 1.5rem;
+          align-items: start;
+          max-width: 1100px;
           width: 100%;
         }
 
-        .input-panel {
-          min-width: 360px;
+        .panel {
+          position: relative;
+          background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-secondary) 100%);
+          border: 1px solid var(--color-border);
+          box-shadow: var(--shadow-lg);
+          overflow: hidden;
         }
 
-        .results-panel-container {
-          min-width: 280px;
+        .panel::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: url('/texture-demonic.png') center/400px repeat;
+          opacity: 0.02;
+          pointer-events: none;
+        }
+
+        .panel::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+          pointer-events: none;
+        }
+
+        .panel--results {
           display: flex;
           flex-direction: column;
+          min-height: 400px;
         }
 
-        .validation-message {
-          color: var(--color-text-secondary);
+        /* Actions Section */
+        .actions {
+          padding: 1.25rem;
+          border-top: 1px solid var(--color-border-subtle);
+          position: relative;
+          z-index: 1;
+        }
+
+        .actions-hint {
+          color: var(--color-text-muted);
           font-size: 0.875rem;
           text-align: center;
-          margin: 0;
-          padding: 0.75rem 1.25rem;
+          margin: 0 0 1rem;
           font-style: italic;
-          border-top: 1px solid var(--color-border);
         }
 
-        .action-buttons {
+        .actions-buttons {
           display: flex;
-          gap: 1rem;
-          padding: 1.25rem;
+          gap: 0.75rem;
           justify-content: center;
-          flex-wrap: wrap;
-          border-top: 1px solid var(--color-border);
         }
 
-        .action-buttons .btn {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          justify-content: center;
-          min-width: 110px;
-          padding: 0.5rem 1rem;
-          font-size: 0.875rem;
-        }
-
-        /* Stack vertically on smaller screens */
-        @media (max-width: 800px) {
-          .content-grid {
+        /* Responsive */
+        @media (max-width: 900px) {
+          .layout {
             grid-template-columns: 1fr;
           }
 
-          .input-panel {
-            min-width: auto;
-          }
-
-          .results-panel-container {
-            min-width: auto;
+          .panel--results {
+            min-height: 300px;
           }
         }
 
         @media (max-width: 480px) {
-          .main-content {
-            padding: 0.75rem;
+          .main {
+            padding: 1rem;
           }
 
-          .action-buttons {
+          .layout {
+            gap: 1rem;
+          }
+
+          .actions-buttons {
             flex-direction: column;
           }
 
-          .action-buttons .btn {
+          .action-btn {
             width: 100%;
           }
         }
