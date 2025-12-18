@@ -1,4 +1,4 @@
-import { HelpCircle, Bug } from 'lucide-react';
+import { HelpCircle, Bug, Lightbulb } from 'lucide-react';
 import type { Language } from '../constants';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
 }
 
 const BUG_REPORT_URL = 'https://github.com/umutterol/HoradricAbacus/issues/new?template=bug_report.md&title=[Bug]%20&labels=bug';
+const SUGGESTION_URL = 'https://github.com/umutterol/HoradricAbacus/issues/new?template=feature_request.md&title=[Suggestion]%20&labels=enhancement';
 
 export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) {
     const nextLanguage = language === 'en' ? 'Turkish' : 'English';
@@ -25,14 +26,24 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                 </div>
                 <div className="header-actions">
                     <a
+                        href={SUGGESTION_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="header-link-btn suggestion-btn"
+                        aria-label="Suggest a feature on GitHub"
+                    >
+                        <Lightbulb size={14} strokeWidth={2} aria-hidden="true" />
+                        <span>Suggest</span>
+                    </a>
+                    <a
                         href={BUG_REPORT_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bug-report-btn"
+                        className="header-link-btn bug-btn"
                         aria-label="Report a bug on GitHub"
                     >
                         <Bug size={14} strokeWidth={2} aria-hidden="true" />
-                        <span>Report Bug</span>
+                        <span>Bug</span>
                     </a>
                     <button
                         className="icon-btn"
@@ -111,14 +122,11 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                     gap: 0.5rem;
                 }
 
-                .bug-report-btn {
+                .header-link-btn {
                     display: flex;
                     align-items: center;
                     gap: 0.375rem;
                     padding: 0.4375rem 0.75rem;
-                    background: linear-gradient(180deg, rgba(185, 28, 28, 0.2) 0%, rgba(107, 28, 28, 0.3) 100%);
-                    border: 1px solid rgba(185, 28, 28, 0.5);
-                    color: #fca5a5;
                     font-family: var(--font-display);
                     font-size: 0.6875rem;
                     font-weight: 500;
@@ -129,15 +137,34 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                     transition: all 0.2s;
                 }
 
-                .bug-report-btn:hover {
+                .header-link-btn:active {
+                    transform: translateY(0);
+                }
+
+                .suggestion-btn {
+                    background: linear-gradient(180deg, rgba(124, 58, 237, 0.2) 0%, rgba(91, 33, 182, 0.3) 100%);
+                    border: 1px solid rgba(124, 58, 237, 0.5);
+                    color: #c4b5fd;
+                }
+
+                .suggestion-btn:hover {
+                    background: linear-gradient(180deg, rgba(124, 58, 237, 0.35) 0%, rgba(91, 33, 182, 0.45) 100%);
+                    border-color: rgba(167, 139, 250, 0.6);
+                    color: #ddd6fe;
+                    transform: translateY(-1px);
+                }
+
+                .bug-btn {
+                    background: linear-gradient(180deg, rgba(185, 28, 28, 0.2) 0%, rgba(107, 28, 28, 0.3) 100%);
+                    border: 1px solid rgba(185, 28, 28, 0.5);
+                    color: #fca5a5;
+                }
+
+                .bug-btn:hover {
                     background: linear-gradient(180deg, rgba(185, 28, 28, 0.35) 0%, rgba(107, 28, 28, 0.45) 100%);
                     border-color: rgba(248, 113, 113, 0.6);
                     color: #fecaca;
                     transform: translateY(-1px);
-                }
-
-                .bug-report-btn:active {
-                    transform: translateY(0);
                 }
 
                 .icon-btn {
@@ -181,11 +208,11 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                         height: 36px;
                     }
 
-                    .bug-report-btn span {
+                    .header-link-btn span {
                         display: none;
                     }
 
-                    .bug-report-btn {
+                    .header-link-btn {
                         padding: 0.5rem;
                     }
 
