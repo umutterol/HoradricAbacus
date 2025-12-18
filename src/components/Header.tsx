@@ -1,4 +1,4 @@
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Bug } from 'lucide-react';
 import type { Language } from '../constants';
 
 interface HeaderProps {
@@ -6,6 +6,8 @@ interface HeaderProps {
     onToggleLanguage: () => void;
     onShowHelp: () => void;
 }
+
+const BUG_REPORT_URL = 'https://github.com/umutterol/HoradricAbacus/issues/new?template=bug_report.md&title=[Bug]%20&labels=bug';
 
 export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) {
     const nextLanguage = language === 'en' ? 'Turkish' : 'English';
@@ -22,6 +24,16 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                     />
                 </div>
                 <div className="header-actions">
+                    <a
+                        href={BUG_REPORT_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bug-report-btn"
+                        aria-label="Report a bug on GitHub"
+                    >
+                        <Bug size={14} strokeWidth={2} aria-hidden="true" />
+                        <span>Report Bug</span>
+                    </a>
                     <button
                         className="icon-btn"
                         onClick={onShowHelp}
@@ -99,6 +111,35 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                     gap: 0.5rem;
                 }
 
+                .bug-report-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.375rem;
+                    padding: 0.4375rem 0.75rem;
+                    background: linear-gradient(180deg, rgba(185, 28, 28, 0.2) 0%, rgba(107, 28, 28, 0.3) 100%);
+                    border: 1px solid rgba(185, 28, 28, 0.5);
+                    color: #fca5a5;
+                    font-family: var(--font-display);
+                    font-size: 0.6875rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    text-decoration: none;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .bug-report-btn:hover {
+                    background: linear-gradient(180deg, rgba(185, 28, 28, 0.35) 0%, rgba(107, 28, 28, 0.45) 100%);
+                    border-color: rgba(248, 113, 113, 0.6);
+                    color: #fecaca;
+                    transform: translateY(-1px);
+                }
+
+                .bug-report-btn:active {
+                    transform: translateY(0);
+                }
+
                 .icon-btn {
                     width: 40px;
                     height: 40px;
@@ -138,6 +179,14 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
 
                     .header-logo {
                         height: 36px;
+                    }
+
+                    .bug-report-btn span {
+                        display: none;
+                    }
+
+                    .bug-report-btn {
+                        padding: 0.5rem;
                     }
 
                     .icon-btn {
