@@ -100,7 +100,7 @@ export function Header({ language, onToggleLanguage, onShowHelp }: HeaderProps) 
                 }
 
                 .header-logo {
-                    height: 48px;
+                    height: 56px;
                     width: auto;
                     filter:
                         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))

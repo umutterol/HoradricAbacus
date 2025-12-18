@@ -76,9 +76,10 @@ export function ResultsPanel({ result, playerNames, playerActive, t }: ResultsPa
           }
 
           .empty-logo {
+            display: block;
             height: 64px;
             width: auto;
-            margin-bottom: 1rem;
+            margin: 0 auto 1rem;
             filter:
               drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))
               drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
