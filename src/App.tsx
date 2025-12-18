@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Sparkles, RotateCcw } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 import { Header } from './components/Header';
 import { MaterialGrid } from './components/MaterialGrid';
 import { BossPrioritySelector } from './components/BossPrioritySelector';
@@ -273,6 +274,8 @@ function App() {
         isVisible={showToast}
         onHide={handleHideToast}
       />
+
+      <Analytics />
 
       <style>{`
         .app {
