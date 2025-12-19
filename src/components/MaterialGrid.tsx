@@ -149,7 +149,8 @@ export function MaterialGrid({
                   aria-label={formatAriaLabel('aria_player_toggle', playerIndex + 1)}
                   disabled={!isEditable}
                 />
-                {isEditable && (
+                {/* Screenshot import button - hidden until feature is ready */}
+                {false && isEditable && (
                   <button
                     type="button"
                     className="player-screenshot-btn"
