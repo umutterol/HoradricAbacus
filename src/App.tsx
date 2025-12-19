@@ -9,7 +9,11 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { TutorialPopup } from './components/TutorialPopup';
 import { Toast } from './components/Toast';
 import { Footer } from './components/Footer';
+import { ScreenshotUploader } from './components/ScreenshotUploader';
+import { SessionBar } from './components/SessionBar';
+import { CreateSessionDialog, JoinSessionDialog } from './components/SessionDialogs';
 import { useLanguage } from './hooks/useLanguage';
+import { useSession } from './hooks/useSession';
 import { optimizeRota, createEmptyInventory, isInventoryEmpty } from './lib/optimizer';
 import type { PlayerInventory, OptimizationResult } from './lib/optimizer';
 import type { JokerPriority, MaterialKey } from './constants';
@@ -61,7 +65,9 @@ function clearStorage() {
 
 function App() {
   const { language, toggleLanguage, t } = useLanguage('en');
+  const [sessionState, sessionActions] = useSession();
 
+  // Local state (used in solo mode)
   const [inventories, setInventories] = useState<PlayerInventory[]>(() => {
     const stored = loadFromStorage();
     return stored?.inventories ?? [
@@ -91,50 +97,155 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>('');
   const [showTutorialPopup, setShowTutorialPopup] = useState(false);
+  const [screenshotPlayerIndex, setScreenshotPlayerIndex] = useState<number | null>(null);
 
+  // Session dialog state
+  const [showCreateSession, setShowCreateSession] = useState(false);
+  const [showJoinSession, setShowJoinSession] = useState(false);
+
+  // Check if we're in collaborative mode
+  const isCollaborative = sessionState.session !== null;
+
+  // Handle URL parameter for auto-join
   useEffect(() => {
-    saveToStorage({ inventories, playerNames, playerActive, priority });
-  }, [inventories, playerNames, playerActive, priority]);
+    const params = new URLSearchParams(window.location.search);
+    const sessionCode = params.get('session');
 
-  const emptyPlayers = useMemo(() =>
-    inventories.map(inv => isInventoryEmpty(inv)),
-    [inventories]
+    if (sessionCode && !sessionState.session && sessionState.isSupabaseAvailable) {
+      sessionActions.joinSession(sessionCode).then((success) => {
+        if (success) {
+          // Clear URL parameter after successful join
+          window.history.replaceState({}, '', window.location.pathname);
+          setToastMessage(t('txt_session_created'));
+          setShowToast(true);
+        }
+      });
+    }
+  }, [sessionState.session, sessionState.isSupabaseAvailable, sessionActions, t]);
+
+  // Save local state to storage (only in solo mode)
+  useEffect(() => {
+    if (!isCollaborative) {
+      saveToStorage({ inventories, playerNames, playerActive, priority });
+    }
+  }, [inventories, playerNames, playerActive, priority, isCollaborative]);
+
+  // Derive effective state based on mode
+  const effectiveInventories = useMemo(() => {
+    if (!isCollaborative) return inventories;
+    return sessionState.players
+      .sort((a, b) => a.slot - b.slot)
+      .map((p) => p.inventory);
+  }, [isCollaborative, sessionState.players, inventories]);
+
+  const effectivePlayerNames = useMemo(() => {
+    if (!isCollaborative) return playerNames;
+    return sessionState.players
+      .sort((a, b) => a.slot - b.slot)
+      .map((p) => p.player_name);
+  }, [isCollaborative, sessionState.players, playerNames]);
+
+  const effectivePlayerActive = useMemo(() => {
+    if (!isCollaborative) return playerActive;
+    return sessionState.players
+      .sort((a, b) => a.slot - b.slot)
+      .map((p) => {
+        // Active if: is_active flag is true AND (connected OR has manual data)
+        const hasData = (p.player_name?.trim() !== '') || Object.values(p.inventory).some(v => v > 0);
+        return p.is_active && (p.is_connected || hasData);
+      });
+  }, [isCollaborative, sessionState.players, playerActive]);
+
+  const effectivePriority = useMemo(() => {
+    if (!isCollaborative) return priority;
+    return sessionState.session?.priority ?? 'duriel';
+  }, [isCollaborative, sessionState.session, priority]);
+
+  // Use session result if available
+  const effectiveResult = useMemo(() => {
+    if (!isCollaborative) return result;
+    return sessionState.session?.result ?? result;
+  }, [isCollaborative, sessionState.session, result]);
+
+  const emptyPlayers = useMemo(
+    () => effectiveInventories.map((inv) => isInventoryEmpty(inv)),
+    [effectiveInventories]
   );
 
   const hasValidInput = useMemo(() => {
-    return inventories.some((inv, idx) =>
-      playerActive[idx] && !isInventoryEmpty(inv)
+    return effectiveInventories.some(
+      (inv, idx) => effectivePlayerActive[idx] && !isInventoryEmpty(inv)
     );
-  }, [inventories, playerActive]);
+  }, [effectiveInventories, effectivePlayerActive]);
 
-  const handleInventoryChange = useCallback((
-    playerIndex: number,
-    material: MaterialKey | 'stygian',
-    value: number
-  ) => {
-    setInventories(prev => {
-      const next = [...prev];
-      next[playerIndex] = { ...next[playerIndex], [material]: value };
-      return next;
-    });
-  }, []);
+  const handleInventoryChange = useCallback(
+    (playerIndex: number, material: MaterialKey | 'stygian', value: number) => {
+      if (isCollaborative) {
+        // In collaborative mode, can edit own slot or any editable slot
+        if (playerIndex === sessionState.mySlot) {
+          sessionActions.updateMyInventory(material, value);
+        } else if (sessionActions.canEditSlot(playerIndex)) {
+          sessionActions.updateSlotInventory(playerIndex, material, value);
+        }
+      } else {
+        setInventories((prev) => {
+          const next = [...prev];
+          next[playerIndex] = { ...next[playerIndex], [material]: value };
+          return next;
+        });
+      }
+    },
+    [isCollaborative, sessionState.mySlot, sessionActions]
+  );
 
-  const handlePlayerNameChange = useCallback((playerIndex: number, name: string) => {
-    setPlayerNames(prev => {
-      const next = [...prev];
-      next[playerIndex] = name;
-      return next;
-    });
-  }, []);
+  const handlePlayerNameChange = useCallback(
+    (playerIndex: number, name: string) => {
+      if (isCollaborative) {
+        if (playerIndex === sessionState.mySlot) {
+          sessionActions.updateMyName(name);
+        } else if (sessionActions.canEditSlot(playerIndex)) {
+          sessionActions.updateSlotName(playerIndex, name);
+        }
+      } else {
+        setPlayerNames((prev) => {
+          const next = [...prev];
+          next[playerIndex] = name;
+          return next;
+        });
+      }
+    },
+    [isCollaborative, sessionState.mySlot, sessionActions]
+  );
 
-  const handlePlayerToggle = useCallback((playerIndex: number) => {
-    setPlayerActive(prev => {
-      const next = [...prev];
-      next[playerIndex] = !next[playerIndex];
-      return next;
-    });
-  }, []);
+  const handlePlayerToggle = useCallback(
+    (playerIndex: number) => {
+      if (isCollaborative) {
+        if (playerIndex === sessionState.mySlot) {
+          sessionActions.toggleMyActive();
+        }
+      } else {
+        setPlayerActive((prev) => {
+          const next = [...prev];
+          next[playerIndex] = !next[playerIndex];
+          return next;
+        });
+      }
+    },
+    [isCollaborative, sessionState.mySlot, sessionActions]
+  );
+
+  const handlePriorityChange = useCallback(
+    (newPriority: JokerPriority) => {
+      if (isCollaborative) {
+        sessionActions.updatePriority(newPriority);
+      } else {
+        setPriority(newPriority);
+      }
+    },
+    [isCollaborative, sessionActions]
+  );
 
   const handleOptimize = useCallback(() => {
     if (!hasValidInput) return;
@@ -142,13 +253,34 @@ function App() {
     setIsLoading(true);
 
     setTimeout(() => {
-      const activePlayerCount = playerActive.filter(Boolean).length;
-      const optimization = optimizeRota(inventories, priority, playerActive, activePlayerCount);
+      const activePlayerCount = effectivePlayerActive.filter(Boolean).length;
+      const optimization = optimizeRota(
+        effectiveInventories,
+        effectivePriority,
+        effectivePlayerActive,
+        activePlayerCount
+      );
+
       setResult(optimization);
+
+      // Broadcast result to session if collaborative
+      if (isCollaborative) {
+        sessionActions.broadcastResult(optimization);
+      }
+
       setIsLoading(false);
+      setToastMessage(t('toast_optimized'));
       setShowToast(true);
     }, 300);
-  }, [inventories, priority, playerActive, hasValidInput]);
+  }, [
+    effectiveInventories,
+    effectivePriority,
+    effectivePlayerActive,
+    hasValidInput,
+    isCollaborative,
+    sessionActions,
+    t,
+  ]);
 
   const handleResetRequest = useCallback(() => {
     setShowResetDialog(true);
@@ -180,8 +312,58 @@ function App() {
     setShowTutorialPopup(false);
   }, []);
 
+  const handleScreenshotUpload = useCallback((playerIndex: number) => {
+    setScreenshotPlayerIndex(playerIndex);
+  }, []);
+
+  const handleScreenshotClose = useCallback(() => {
+    setScreenshotPlayerIndex(null);
+  }, []);
+
+  const handleScreenshotApply = useCallback(
+    (inventory: Partial<PlayerInventory>) => {
+      if (screenshotPlayerIndex === null) return;
+
+      if (isCollaborative && screenshotPlayerIndex === sessionState.mySlot) {
+        // Apply each material to the session
+        for (const [key, value] of Object.entries(inventory)) {
+          if (value !== undefined) {
+            sessionActions.updateMyInventory(key as MaterialKey | 'stygian', value);
+          }
+        }
+      } else if (!isCollaborative) {
+        setInventories((prev) => {
+          const next = [...prev];
+          next[screenshotPlayerIndex] = {
+            ...next[screenshotPlayerIndex],
+            ...inventory,
+          };
+          return next;
+        });
+      }
+    },
+    [screenshotPlayerIndex, isCollaborative, sessionState.mySlot, sessionActions]
+  );
+
   const handleHideToast = useCallback(() => {
     setShowToast(false);
+  }, []);
+
+  // Session dialog handlers
+  const handleShowCreateSession = useCallback(() => {
+    setShowCreateSession(true);
+  }, []);
+
+  const handleShowJoinSession = useCallback(() => {
+    setShowJoinSession(true);
+  }, []);
+
+  const handleCloseCreateSession = useCallback(() => {
+    setShowCreateSession(false);
+  }, []);
+
+  const handleCloseJoinSession = useCallback(() => {
+    setShowJoinSession(false);
   }, []);
 
   return (
@@ -192,24 +374,37 @@ function App() {
         onShowHelp={handleShowHelp}
       />
 
+      <SessionBar
+        sessionState={sessionState}
+        sessionActions={sessionActions}
+        t={t}
+        onShowCreateSession={handleShowCreateSession}
+        onShowJoinSession={handleShowJoinSession}
+      />
+
       <main className="main" role="main" aria-label="Material optimizer">
         <div className="layout">
           {/* Input Panel */}
           <div className="panel panel--input">
             <MaterialGrid
-              inventories={inventories}
+              inventories={effectiveInventories}
               onInventoryChange={handleInventoryChange}
-              playerActive={playerActive}
+              playerActive={effectivePlayerActive}
               emptyPlayers={emptyPlayers}
               onPlayerToggle={handlePlayerToggle}
-              playerNames={playerNames}
+              playerNames={effectivePlayerNames}
               onNameChange={handlePlayerNameChange}
+              onScreenshotUpload={handleScreenshotUpload}
+              isCollaborative={isCollaborative}
+              mySlot={sessionState.mySlot}
+              players={sessionState.players}
+              canEditSlot={isCollaborative ? sessionActions.canEditSlot : undefined}
               t={t}
             />
 
             <BossPrioritySelector
-              priority={priority}
-              onPriorityChange={setPriority}
+              priority={effectivePriority}
+              onPriorityChange={handlePriorityChange}
               t={t}
             />
 
@@ -228,15 +423,17 @@ function App() {
                   <Sparkles size={16} aria-hidden="true" />
                   {t('btn_calculate')}
                 </DiabloButton>
-                <DiabloButton
-                  variant="secondary"
-                  size="md"
-                  onClick={handleResetRequest}
-                  aria-label={t('btn_reset')}
-                >
-                  <RotateCcw size={16} aria-hidden="true" />
-                  {t('btn_reset')}
-                </DiabloButton>
+                {!isCollaborative && (
+                  <DiabloButton
+                    variant="secondary"
+                    size="md"
+                    onClick={handleResetRequest}
+                    aria-label={t('btn_reset')}
+                  >
+                    <RotateCcw size={16} aria-hidden="true" />
+                    {t('btn_reset')}
+                  </DiabloButton>
+                )}
               </div>
             </div>
           </div>
@@ -244,9 +441,9 @@ function App() {
           {/* Results Panel */}
           <div className="panel panel--results">
             <ResultsPanel
-              result={result}
-              playerNames={playerNames}
-              playerActive={playerActive}
+              result={effectiveResult}
+              playerNames={effectivePlayerNames}
+              playerActive={effectivePlayerActive}
               t={t}
             />
           </div>
@@ -268,8 +465,31 @@ function App() {
         t={t}
       />
 
+      <ScreenshotUploader
+        isOpen={screenshotPlayerIndex !== null}
+        onClose={handleScreenshotClose}
+        onApply={handleScreenshotApply}
+        playerIndex={screenshotPlayerIndex ?? 0}
+        playerName={effectivePlayerNames[screenshotPlayerIndex ?? 0] || ''}
+        t={t}
+      />
+
+      <CreateSessionDialog
+        isOpen={showCreateSession}
+        onClose={handleCloseCreateSession}
+        onCreate={sessionActions.createSession}
+        t={t}
+      />
+
+      <JoinSessionDialog
+        isOpen={showJoinSession}
+        onClose={handleCloseJoinSession}
+        onJoin={sessionActions.joinSession}
+        t={t}
+      />
+
       <Toast
-        message={t('toast_optimized')}
+        message={toastMessage}
         isVisible={showToast}
         onHide={handleHideToast}
       />

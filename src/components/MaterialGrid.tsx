@@ -1,7 +1,10 @@
+import { Camera, Circle, User } from 'lucide-react';
 import { BOSS_LIST, MATERIAL_ICONS, MATERIAL_COLORS } from '../constants';
 import type { MaterialKey } from '../constants';
 import type { TranslateFunction } from '../hooks/useLanguage';
 import type { PlayerInventory } from '../lib/optimizer';
+import type { SessionPlayer } from '../lib/database.types';
+import { getSlotState, type SlotState } from '../lib/database.types';
 
 interface MaterialGridProps {
   inventories: PlayerInventory[];
@@ -11,6 +14,11 @@ interface MaterialGridProps {
   onPlayerToggle: (playerIndex: number) => void;
   playerNames: string[];
   onNameChange: (playerIndex: number, name: string) => void;
+  onScreenshotUpload: (playerIndex: number) => void;
+  isCollaborative: boolean;
+  mySlot: number | null;
+  players: SessionPlayer[];
+  canEditSlot?: (slot: number) => boolean;
   t: TranslateFunction;
 }
 
@@ -21,8 +29,33 @@ export function MaterialGrid({
   onPlayerToggle,
   playerNames,
   onNameChange,
+  onScreenshotUpload,
+  isCollaborative,
+  mySlot,
+  players,
+  canEditSlot,
   t
 }: MaterialGridProps) {
+  // In collaborative mode, can edit own slot or disconnected slots (for manual entry)
+  const canEdit = (playerIndex: number) => {
+    if (!isCollaborative) return true;
+    if (canEditSlot) return canEditSlot(playerIndex);
+    // Fallback: own slot is always editable
+    return playerIndex === mySlot;
+  };
+
+  // Get player status for collaborative mode indicators
+  const getPlayerStatus = (playerIndex: number) => {
+    if (!isCollaborative) return null;
+    return players.find(p => p.slot === playerIndex) || null;
+  };
+
+  // Get slot state for visual indicators
+  const getSlotVisualState = (playerIndex: number): SlotState => {
+    const player = getPlayerStatus(playerIndex);
+    if (!player) return 'empty';
+    return getSlotState(player);
+  };
   const materials: { key: MaterialKey | 'stygian'; labelKey: string; icon: string; color: string }[] = [
     ...BOSS_LIST.map(boss => ({
       key: boss.materialKey,
@@ -56,29 +89,81 @@ export function MaterialGrid({
       {/* Player Headers */}
       <div className="grid-header">
         <div className="header-spacer" />
-        {[0, 1, 2, 3].map(playerIndex => (
-          <div
-            key={playerIndex}
-            className={`player-header ${playerActive[playerIndex] ? 'active' : 'inactive'}`}
-          >
-            <input
-              type="text"
-              className="player-name"
-              value={playerNames[playerIndex]}
-              placeholder={`P${playerIndex + 1}`}
-              onChange={(e) => onNameChange(playerIndex, e.target.value)}
-              maxLength={8}
-              aria-label={formatAriaLabel('aria_player_name', playerIndex + 1)}
-            />
-            <button
-              type="button"
-              className="player-toggle-btn"
-              onClick={() => onPlayerToggle(playerIndex)}
-              aria-pressed={playerActive[playerIndex]}
-              aria-label={formatAriaLabel('aria_player_toggle', playerIndex + 1)}
-            />
-          </div>
-        ))}
+        {[0, 1, 2, 3].map(playerIndex => {
+          const playerStatus = getPlayerStatus(playerIndex);
+          const isMySlot = isCollaborative && playerIndex === mySlot;
+          const isEditable = canEdit(playerIndex);
+          const slotState = getSlotVisualState(playerIndex);
+          const isReady = playerStatus?.is_ready ?? false;
+
+          // Determine status indicator color based on slot state
+          const getStatusColor = () => {
+            if (slotState === 'connected') {
+              return isReady ? '#22c55e' : '#eab308'; // Green if ready, yellow if not
+            }
+            if (slotState === 'manual') {
+              return '#c9a227'; // Bronze/gold for manual entry
+            }
+            return '#4b5563'; // Gray for empty
+          };
+
+          return (
+            <div
+              key={playerIndex}
+              className={`player-header ${playerActive[playerIndex] ? 'active' : 'inactive'} ${isMySlot ? 'my-slot' : ''} ${!isEditable ? 'readonly' : ''} slot-${slotState}`}
+            >
+              {/* Collaborative mode status indicator */}
+              {isCollaborative && (
+                <div className="player-status">
+                  {slotState === 'manual' ? (
+                    <User size={10} color={getStatusColor()} strokeWidth={2.5} />
+                  ) : (
+                    <Circle
+                      size={8}
+                      fill={getStatusColor()}
+                      stroke="none"
+                    />
+                  )}
+                  {isMySlot && <span className="you-label">{t('txt_you')}</span>}
+                  {slotState === 'manual' && !isMySlot && (
+                    <span className="manual-label">{t('txt_manual_entry')}</span>
+                  )}
+                </div>
+              )}
+              <input
+                type="text"
+                className="player-name"
+                value={playerNames[playerIndex]}
+                placeholder={`P${playerIndex + 1}`}
+                onChange={(e) => onNameChange(playerIndex, e.target.value)}
+                maxLength={8}
+                disabled={!isEditable}
+                aria-label={formatAriaLabel('aria_player_name', playerIndex + 1)}
+              />
+              <div className="player-controls">
+                <button
+                  type="button"
+                  className="player-toggle-btn"
+                  onClick={() => onPlayerToggle(playerIndex)}
+                  aria-pressed={playerActive[playerIndex]}
+                  aria-label={formatAriaLabel('aria_player_toggle', playerIndex + 1)}
+                  disabled={!isEditable}
+                />
+                {isEditable && (
+                  <button
+                    type="button"
+                    className="player-screenshot-btn"
+                    onClick={() => onScreenshotUpload(playerIndex)}
+                    aria-label={t('btn_screenshot')}
+                    title={t('btn_screenshot')}
+                  >
+                    <Camera size={12} />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Material Rows */}
@@ -109,24 +194,28 @@ export function MaterialGrid({
 
               {/* Input Cells */}
               <div className="input-cells">
-                {inventories.map((inv, playerIndex) => (
-                  <input
-                    key={playerIndex}
-                    type="number"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    min="0"
-                    value={inv[material.key] || ''}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 0;
-                      onInventoryChange(playerIndex, material.key, Math.max(0, val));
-                    }}
-                    placeholder="0"
-                    className={`material-input ${!playerActive[playerIndex] ? 'inactive' : ''}`}
-                    disabled={!playerActive[playerIndex]}
-                    aria-label={formatAriaLabel('aria_material_input', t(material.labelKey), playerIndex + 1)}
-                  />
-                ))}
+                {inventories.map((inv, playerIndex) => {
+                  const isEditable = canEdit(playerIndex);
+                  const isDisabled = !playerActive[playerIndex] || !isEditable;
+                  return (
+                    <input
+                      key={playerIndex}
+                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      min="0"
+                      value={inv[material.key] || ''}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        onInventoryChange(playerIndex, material.key, Math.max(0, val));
+                      }}
+                      placeholder="0"
+                      className={`material-input ${!playerActive[playerIndex] ? 'inactive' : ''} ${!isEditable ? 'readonly' : ''}`}
+                      disabled={isDisabled}
+                      aria-label={formatAriaLabel('aria_material_input', t(material.labelKey), playerIndex + 1)}
+                    />
+                  );
+                })}
               </div>
             </div>
           );
@@ -169,6 +258,58 @@ export function MaterialGrid({
           opacity: 0.4;
         }
 
+        .player-header.my-slot {
+          border-radius: 4px;
+          background: rgba(201, 162, 39, 0.08);
+          padding: 0.25rem;
+          margin: -0.25rem;
+        }
+
+        .player-header.readonly:not(.my-slot) {
+          opacity: 0.7;
+        }
+
+        /* Player Status (Collaborative Mode) */
+        .player-status {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          height: 16px;
+        }
+
+        .you-label {
+          font-size: 0.625rem;
+          font-weight: 600;
+          color: var(--color-gold);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .manual-label {
+          font-size: 0.5625rem;
+          font-weight: 500;
+          color: var(--color-bronze);
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          opacity: 0.9;
+        }
+
+        /* Slot state styling */
+        .player-header.slot-manual {
+          background: rgba(201, 162, 39, 0.06);
+          border-radius: 4px;
+          padding: 0.25rem;
+          margin: -0.25rem;
+        }
+
+        .player-header.slot-manual .player-name {
+          color: var(--color-bronze);
+        }
+
+        .player-header.slot-empty:not(.my-slot) {
+          opacity: 0.5;
+        }
+
         /* Player Name Input */
         .player-name {
           width: 48px;
@@ -203,6 +344,15 @@ export function MaterialGrid({
           color: var(--color-text-muted);
         }
 
+        .player-name:disabled {
+          cursor: default;
+          color: var(--color-text-secondary);
+        }
+
+        .player-name:disabled:hover {
+          border-color: transparent;
+        }
+
         /* Toggle Button */
         .player-toggle-btn {
           width: 36px;
@@ -227,6 +377,54 @@ export function MaterialGrid({
 
         .player-header.active .player-toggle-btn:hover {
           background: linear-gradient(180deg, var(--color-gold-light) 0%, var(--color-gold) 100%);
+        }
+
+        .player-toggle-btn:disabled {
+          cursor: default;
+          opacity: 0.6;
+        }
+
+        .player-toggle-btn:disabled:hover {
+          border-color: var(--color-border);
+          background: var(--color-bg-void);
+        }
+
+        .player-header.active .player-toggle-btn:disabled:hover {
+          background: linear-gradient(180deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+          border-color: var(--color-gold);
+        }
+
+        /* Player Controls */
+        .player-controls {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        /* Screenshot Button */
+        .player-screenshot-btn {
+          width: 24px;
+          height: 18px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(124, 58, 237, 0.15);
+          border: 1px solid rgba(124, 58, 237, 0.4);
+          color: #a78bfa;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+
+        .player-screenshot-btn:hover {
+          background: rgba(124, 58, 237, 0.25);
+          border-color: rgba(167, 139, 250, 0.6);
+          color: #c4b5fd;
+        }
+
+        .player-screenshot-btn:active {
+          transform: scale(0.95);
         }
 
         /* Grid Body */
@@ -328,6 +526,12 @@ export function MaterialGrid({
         .material-input.inactive {
           opacity: 0.25;
           cursor: not-allowed;
+        }
+
+        .material-input.readonly:not(.inactive) {
+          cursor: default;
+          color: var(--color-text-secondary);
+          background: rgba(0, 0, 0, 0.2);
         }
 
         .material-input:focus {
