@@ -180,6 +180,16 @@ function App() {
     );
   }, [effectiveInventories, effectivePlayerActive]);
 
+  // In collaborative mode with 2+ connected players, all must be ready to optimize
+  const allConnectedReady = useMemo(() => {
+    if (!isCollaborative) return true;
+    const connectedPlayers = sessionState.players.filter((p) => p.is_connected);
+    if (connectedPlayers.length <= 1) return true; // Solo in session doesn't need ready
+    return connectedPlayers.every((p) => p.is_ready);
+  }, [isCollaborative, sessionState.players]);
+
+  const canOptimize = hasValidInput && allConnectedReady;
+
   const handleInventoryChange = useCallback(
     (playerIndex: number, material: MaterialKey | 'stygian', value: number) => {
       if (isCollaborative) {
@@ -349,6 +359,11 @@ function App() {
     setShowToast(false);
   }, []);
 
+  const handleShowToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+  }, []);
+
   // Session dialog handlers
   const handleShowCreateSession = useCallback(() => {
     setShowCreateSession(true);
@@ -380,6 +395,7 @@ function App() {
         t={t}
         onShowCreateSession={handleShowCreateSession}
         onShowJoinSession={handleShowJoinSession}
+        onShowToast={handleShowToast}
       />
 
       <main className="main" role="main" aria-label="Material optimizer">
@@ -410,13 +426,19 @@ function App() {
 
             {/* Actions */}
             <div className="actions">
-              <p className="actions-hint">{t('txt_no_materials')}</p>
+              <p className="actions-hint">
+                {!hasValidInput
+                  ? t('txt_no_materials')
+                  : !allConnectedReady
+                    ? t('txt_all_ready_required')
+                    : t('txt_no_materials')}
+              </p>
               <div className="actions-buttons">
                 <DiabloButton
                   variant="primary"
                   size="md"
                   onClick={handleOptimize}
-                  disabled={!hasValidInput}
+                  disabled={!canOptimize}
                   loading={isLoading}
                   aria-label={t('btn_calculate')}
                 >
@@ -478,6 +500,7 @@ function App() {
         isOpen={showCreateSession}
         onClose={handleCloseCreateSession}
         onCreate={sessionActions.createSession}
+        onShowToast={handleShowToast}
         t={t}
       />
 

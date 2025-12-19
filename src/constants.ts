@@ -202,6 +202,9 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
         txt_manual_entry: "Manual",
         toast_session_full: "This party is full (4/4 players)",
         toast_code_copied: "Code copied!",
+        placeholder_player_name: "Your name (optional)",
+        txt_waiting_ready: "Waiting for all players to ready up",
+        txt_all_ready_required: "All online players must be ready to optimize",
     },
     tr: {
         lbl_player: "Oyuncu",
@@ -308,6 +311,9 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
         txt_manual_entry: "Manuel",
         toast_session_full: "Bu parti dolu (4/4 oyuncu)",
         toast_code_copied: "Kod kopyalandı!",
+        placeholder_player_name: "İsminiz (isteğe bağlı)",
+        txt_waiting_ready: "Tüm oyuncuların hazır olması bekleniyor",
+        txt_all_ready_required: "Optimize etmek için tüm çevrimiçi oyuncular hazır olmalı",
     }
 };
 

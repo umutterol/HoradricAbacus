@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Users, Copy, Check, LogOut, Crown, Circle, Link } from 'lucide-react';
+import { Users, Copy, Check, LogOut, Crown, Circle, Link, User } from 'lucide-react';
 import type { SessionState, SessionActions } from '../hooks/useSession';
 import type { TranslateFunction } from '../hooks/useLanguage';
 import { DiabloButton } from './DiabloButton';
+import { hasSlotData } from '../lib/database.types';
 
 interface SessionBarProps {
   sessionState: SessionState;
@@ -10,6 +11,7 @@ interface SessionBarProps {
   t: TranslateFunction;
   onShowCreateSession: () => void;
   onShowJoinSession: () => void;
+  onShowToast: (message: string) => void;
 }
 
 export function SessionBar({
@@ -18,6 +20,7 @@ export function SessionBar({
   t,
   onShowCreateSession,
   onShowJoinSession,
+  onShowToast,
 }: SessionBarProps) {
   const { session, players, mySlot, isConnected, isSupabaseAvailable } = sessionState;
   const [copiedCode, setCopiedCode] = useState(false);
@@ -40,9 +43,11 @@ export function SessionBar({
 
     if (type === 'code') {
       setCopiedCode(true);
+      onShowToast(t('toast_code_copied'));
       setTimeout(() => setCopiedCode(false), 2000);
     } else {
       setCopiedLink(true);
+      onShowToast(t('toast_link_copied'));
       setTimeout(() => setCopiedLink(false), 2000);
     }
   };
@@ -59,7 +64,9 @@ export function SessionBar({
   };
 
   const connectedCount = players.filter((p) => p.is_connected).length;
+  const manualCount = players.filter((p) => !p.is_connected && hasSlotData(p)).length;
   const readyCount = players.filter((p) => p.is_connected && p.is_ready).length;
+  const allConnectedReady = players.filter((p) => p.is_connected).every((p) => p.is_ready);
 
   // Not in a session - show create/join buttons
   if (!session) {
@@ -127,33 +134,46 @@ export function SessionBar({
         </div>
 
         <div className="session-players">
-          {players.map((player) => (
-            <div
-              key={player.slot}
-              className={`player-indicator ${player.is_connected ? 'connected' : ''} ${player.is_ready ? 'ready' : ''} ${player.slot === mySlot ? 'me' : ''}`}
-              title={
-                player.slot === mySlot
-                  ? `${t('txt_you')}${player.player_name ? ` (${player.player_name})` : ''}`
-                  : player.player_name || `${t('lbl_player')} ${player.slot + 1}`
+          {players.map((player) => {
+            const isManual = !player.is_connected && hasSlotData(player);
+            const getIndicatorColor = () => {
+              if (player.is_connected) {
+                return player.is_ready ? '#22c55e' : '#eab308'; // Green if ready, yellow if not
               }
-            >
-              {player.slot === session.host_slot && (
-                <Crown size={10} className="host-icon" />
-              )}
-              <Circle
-                size={8}
-                fill={
-                  !player.is_connected
-                    ? '#4b5563'
-                    : player.is_ready
-                      ? '#22c55e'
-                      : '#eab308'
+              if (isManual) {
+                return '#3b82f6'; // Blue for manual entry
+              }
+              return '#4b5563'; // Gray for empty
+            };
+
+            return (
+              <div
+                key={player.slot}
+                className={`player-indicator ${player.is_connected ? 'connected' : ''} ${player.is_ready ? 'ready' : ''} ${player.slot === mySlot ? 'me' : ''} ${isManual ? 'manual' : ''}`}
+                title={
+                  player.slot === mySlot
+                    ? `${t('txt_you')}${player.player_name ? ` (${player.player_name})` : ''}`
+                    : isManual
+                      ? `${t('txt_manual_entry')}${player.player_name ? `: ${player.player_name}` : ''}`
+                      : player.player_name || `${t('lbl_player')} ${player.slot + 1}`
                 }
-                stroke="none"
-              />
-            </div>
-          ))}
-          <span className="player-count">{connectedCount}/4</span>
+              >
+                {player.slot === session.host_slot && (
+                  <Crown size={10} className="host-icon" />
+                )}
+                {isManual ? (
+                  <User size={10} color={getIndicatorColor()} strokeWidth={2.5} />
+                ) : (
+                  <Circle
+                    size={8}
+                    fill={getIndicatorColor()}
+                    stroke="none"
+                  />
+                )}
+              </div>
+            );
+          })}
+          <span className="player-count">{connectedCount + manualCount}/4</span>
           {readyCount > 0 && (
             <span className="ready-count">
               ({readyCount} {t('txt_ready')})
@@ -164,16 +184,19 @@ export function SessionBar({
         {!isConnected && (
           <span className="connection-status">{t('txt_reconnecting')}</span>
         )}
+
+        {!allConnectedReady && connectedCount > 1 && (
+          <span className="ready-hint">{t('txt_waiting_ready')}</span>
+        )}
       </div>
 
       <div className="session-actions">
-        <DiabloButton
-          variant={isReady ? 'primary' : 'secondary'}
-          size="sm"
+        <button
+          className={`ready-btn ${isReady ? 'is-ready' : 'not-ready'}`}
           onClick={sessionActions.toggleMyReady}
         >
           {isReady ? t('btn_unready') : t('btn_ready')}
-        </DiabloButton>
+        </button>
         <DiabloButton variant="secondary" size="sm" onClick={sessionActions.leaveSession}>
           <LogOut size={14} />
           {t('btn_leave')}
@@ -272,8 +295,19 @@ export function SessionBar({
           background: rgba(34, 197, 94, 0.1);
         }
 
+        .player-indicator.manual {
+          border-color: rgba(59, 130, 246, 0.5);
+          background: rgba(59, 130, 246, 0.1);
+        }
+
         .host-icon {
           color: var(--color-gold);
+        }
+
+        .ready-hint {
+          font-size: 0.75rem;
+          color: #fbbf24;
+          animation: pulse 1.5s ease-in-out infinite;
         }
 
         .player-count {
@@ -301,6 +335,52 @@ export function SessionBar({
         .session-actions {
           display: flex;
           gap: 0.5rem;
+        }
+
+        /* Ready button with attention-grabbing styling */
+        .ready-btn {
+          padding: 0.5rem 1rem;
+          font-family: var(--font-display);
+          font-size: 0.8125rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: 1px solid;
+        }
+
+        .ready-btn.not-ready {
+          background: linear-gradient(180deg, rgba(234, 179, 8, 0.3) 0%, rgba(234, 179, 8, 0.1) 100%);
+          border-color: rgba(234, 179, 8, 0.6);
+          color: #fbbf24;
+          animation: readyPulse 2s ease-in-out infinite;
+        }
+
+        .ready-btn.not-ready:hover {
+          background: linear-gradient(180deg, rgba(234, 179, 8, 0.5) 0%, rgba(234, 179, 8, 0.2) 100%);
+          border-color: rgba(234, 179, 8, 0.8);
+          box-shadow: 0 0 12px rgba(234, 179, 8, 0.3);
+        }
+
+        .ready-btn.is-ready {
+          background: linear-gradient(180deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%);
+          border-color: rgba(34, 197, 94, 0.6);
+          color: #86efac;
+        }
+
+        .ready-btn.is-ready:hover {
+          background: linear-gradient(180deg, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0.2) 100%);
+          border-color: rgba(34, 197, 94, 0.8);
+        }
+
+        @keyframes readyPulse {
+          0%, 100% {
+            box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+          }
+          50% {
+            box-shadow: 0 0 8px 2px rgba(234, 179, 8, 0.3);
+          }
         }
 
         @media (max-width: 640px) {

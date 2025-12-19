@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Copy, Check, Users } from 'lucide-react';
+import { X, Copy, Check, Users, Link } from 'lucide-react';
 import type { TranslateFunction } from '../hooks/useLanguage';
 import { DiabloButton } from './DiabloButton';
 
 interface CreateSessionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: () => Promise<string | null>;
+  onCreate: (playerName: string) => Promise<string | null>;
+  onShowToast: (message: string) => void;
   t: TranslateFunction;
 }
 
@@ -14,26 +15,34 @@ export function CreateSessionDialog({
   isOpen,
   onClose,
   onCreate,
+  onShowToast,
   t,
 }: CreateSessionDialogProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [sessionCode, setSessionCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [playerName, setPlayerName] = useState('');
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Reset state when dialog opens/closes
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setPlayerName('');
+      setTimeout(() => nameInputRef.current?.focus(), 100);
+    } else {
       setSessionCode(null);
       setError(null);
-      setCopied(false);
+      setCopiedCode(false);
+      setCopiedLink(false);
     }
   }, [isOpen]);
 
   const handleCreate = async () => {
     setIsCreating(true);
     setError(null);
-    const code = await onCreate();
+    const code = await onCreate(playerName.trim());
     if (code) {
       setSessionCode(code);
     } else {
@@ -42,15 +51,50 @@ export function CreateSessionDialog({
     setIsCreating(false);
   };
 
+  const copyCode = async () => {
+    if (!sessionCode) return;
+    try {
+      await navigator.clipboard.writeText(sessionCode);
+      setCopiedCode(true);
+      onShowToast(t('toast_code_copied'));
+      setTimeout(() => setCopiedCode(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = sessionCode;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopiedCode(true);
+      onShowToast(t('toast_code_copied'));
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
   const copyLink = async () => {
     if (!sessionCode) return;
     const url = `${window.location.origin}${window.location.pathname}?session=${sessionCode}`;
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedLink(true);
+      onShowToast(t('toast_link_copied'));
+      setTimeout(() => setCopiedLink(false), 2000);
     } catch {
       // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopiedLink(true);
+      onShowToast(t('toast_link_copied'));
+      setTimeout(() => setCopiedLink(false), 2000);
     }
   };
 
@@ -73,8 +117,11 @@ export function CreateSessionDialog({
             <p className="success-text">{t('txt_session_created')}</p>
             <div className="code-display">
               <span className="code-value">{sessionCode}</span>
-              <button className="copy-code-btn" onClick={copyLink}>
-                {copied ? <Check size={16} /> : <Copy size={16} />}
+              <button className="copy-code-btn" onClick={copyCode} title={t('btn_copy_code')}>
+                {copiedCode ? <Check size={16} /> : <Copy size={16} />}
+              </button>
+              <button className="copy-code-btn" onClick={copyLink} title={t('btn_copy_link')}>
+                {copiedLink ? <Check size={16} /> : <Link size={16} />}
               </button>
             </div>
             <p className="hint-text">{t('txt_share_code')}</p>
@@ -85,6 +132,16 @@ export function CreateSessionDialog({
         ) : (
           <div className="create-form">
             <p className="info-text">{t('txt_create_session_info')}</p>
+            <input
+              ref={nameInputRef}
+              type="text"
+              className="name-input"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder={t('placeholder_player_name')}
+              maxLength={8}
+              autoComplete="off"
+            />
             {error && <p className="error-text">{error}</p>}
             <DiabloButton
               variant="primary"
@@ -253,6 +310,25 @@ export function CreateSessionDialog({
             font-size: 0.875rem;
             margin: 0;
           }
+
+          .name-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--color-bg-void);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            font-size: 0.9375rem;
+            text-align: center;
+          }
+
+          .name-input::placeholder {
+            color: var(--color-text-muted);
+          }
+
+          .name-input:focus {
+            outline: none;
+            border-color: var(--color-gold);
+          }
         `}</style>
       </div>
     </div>
@@ -262,7 +338,7 @@ export function CreateSessionDialog({
 interface JoinSessionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onJoin: (code: string) => Promise<'success' | 'not_found' | 'full' | 'error'>;
+  onJoin: (code: string, playerName: string) => Promise<'success' | 'not_found' | 'full' | 'error'>;
   t: TranslateFunction;
 }
 
@@ -273,16 +349,18 @@ export function JoinSessionDialog({
   t,
 }: JoinSessionDialogProps) {
   const [code, setCode] = useState('');
+  const [playerName, setPlayerName] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const codeInputRef = useRef<HTMLInputElement>(null);
 
   // Reset and focus when dialog opens
   useEffect(() => {
     if (isOpen) {
       setCode('');
+      setPlayerName('');
       setError(null);
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => codeInputRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
@@ -290,7 +368,7 @@ export function JoinSessionDialog({
     if (!code.trim()) return;
     setIsJoining(true);
     setError(null);
-    const result = await onJoin(code.trim());
+    const result = await onJoin(code.trim(), playerName.trim());
     if (result === 'success') {
       onClose();
     } else if (result === 'full') {
@@ -325,7 +403,7 @@ export function JoinSessionDialog({
 
         <div className="join-form">
           <input
-            ref={inputRef}
+            ref={codeInputRef}
             type="text"
             className="code-input"
             value={code}
@@ -335,6 +413,16 @@ export function JoinSessionDialog({
             maxLength={6}
             autoComplete="off"
             spellCheck="false"
+          />
+          <input
+            type="text"
+            className="name-input"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={t('placeholder_player_name')}
+            maxLength={8}
+            autoComplete="off"
           />
           {error && <p className="error-text">{error}</p>}
           <DiabloButton
@@ -375,6 +463,25 @@ export function JoinSessionDialog({
           }
 
           .code-input:focus {
+            outline: none;
+            border-color: var(--color-gold);
+          }
+
+          .name-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--color-bg-void);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            font-size: 0.9375rem;
+            text-align: center;
+          }
+
+          .name-input::placeholder {
+            color: var(--color-text-muted);
+          }
+
+          .name-input:focus {
             outline: none;
             border-color: var(--color-gold);
           }

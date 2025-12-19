@@ -22,7 +22,18 @@
       "WebSearch",
       "Bash(git merge:*)",
       "Bash(git push:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npm install:*)",
+      "Bash(open http://localhost:5173/)",
+      "Bash(node:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npx vite:*)",
+      "Bash(open http://localhost:5174/)",
+      "Bash(npm run test:run:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npm run test:e2e:*)"
     ]
   }
 }

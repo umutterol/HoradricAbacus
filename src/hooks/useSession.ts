@@ -37,8 +37,8 @@ export interface SessionState {
 }
 
 export interface SessionActions {
-  createSession: () => Promise<string | null>;
-  joinSession: (code: string) => Promise<'success' | 'not_found' | 'full' | 'error'>;
+  createSession: (playerName?: string) => Promise<string | null>;
+  joinSession: (code: string, playerName?: string) => Promise<'success' | 'not_found' | 'full' | 'error'>;
   leaveSession: () => Promise<void>;
   updateMyInventory: (material: MaterialKey | 'stygian', value: number) => void;
   updateMyName: (name: string) => void;
@@ -142,7 +142,7 @@ export function useSession(): [SessionState, SessionActions] {
     setConnectionError('Session has ended');
   }, []);
 
-  const createSession = useCallback(async (): Promise<string | null> => {
+  const createSession = useCallback(async (playerName?: string): Promise<string | null> => {
     if (!supabase) {
       setConnectionError('Supabase not configured');
       return null;
@@ -173,7 +173,7 @@ export function useSession(): [SessionState, SessionActions] {
         is_ready: false,
         client_id: slot === 0 ? clientId.current : null,
         inventory: emptyInventory,
-        player_name: '',
+        player_name: slot === 0 ? (playerName || '') : '',
       }));
 
       const { data: newPlayers, error: playersError } = await supabase
@@ -196,7 +196,7 @@ export function useSession(): [SessionState, SessionActions] {
     }
   }, []);
 
-  const joinSession = useCallback(async (code: string): Promise<'success' | 'not_found' | 'full' | 'error'> => {
+  const joinSession = useCallback(async (code: string, playerName?: string): Promise<'success' | 'not_found' | 'full' | 'error'> => {
     if (!supabase) {
       setConnectionError('Supabase not configured');
       return 'error';
@@ -241,6 +241,7 @@ export function useSession(): [SessionState, SessionActions] {
           is_connected: true,
           client_id: clientId.current,
           last_seen: new Date().toISOString(),
+          player_name: playerName || availableSlot.player_name || '',
         })
         .eq('id', availableSlot.id);
 
