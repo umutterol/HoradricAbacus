@@ -78,9 +78,11 @@ test.describe('Collaborative Session Feature', () => {
     const successText = page.locator('.success-text');
     await expect(successText).toBeVisible();
 
-    // Should have copy button
-    const copyBtn = page.locator('.copy-code-btn');
-    await expect(copyBtn).toBeVisible();
+    // Should have copy buttons (code and link)
+    const copyCodeBtn = page.locator('.copy-code-btn').first();
+    const copyLinkBtn = page.locator('.copy-code-btn').nth(1);
+    await expect(copyCodeBtn).toBeVisible();
+    await expect(copyLinkBtn).toBeVisible();
   });
 
   test('should show session bar after creating a session', async ({ page }) => {
@@ -269,7 +271,7 @@ test.describe('Collaborative Session Feature', () => {
     await expect(youLabel).toHaveText('You');
   });
 
-  test('should only allow editing own slot in collaborative mode', async ({ page }) => {
+  test('should allow host to edit disconnected slots for manual entry', async ({ page }) => {
     const createPartyBtn = page.locator('button:has-text("Create Party")');
 
     const isVisible = await createPartyBtn.isVisible().catch(() => false);
@@ -289,17 +291,21 @@ test.describe('Collaborative Session Feature', () => {
     const firstPlayerName = page.locator('.player-name').first();
     await expect(firstPlayerName).toBeEnabled();
 
-    // Other player names should be disabled
+    // Host can edit disconnected slots for manual entry (player name)
     const secondPlayerName = page.locator('.player-name').nth(1);
-    await expect(secondPlayerName).toBeDisabled();
+    await expect(secondPlayerName).toBeEnabled();
 
-    // First player's material input should be editable
+    // Verify we can actually type in the disconnected slot name
+    await secondPlayerName.fill('Friend1');
+    await expect(secondPlayerName).toHaveValue('Friend1');
+
+    // First player's material input should be editable (active slot)
     const firstMaterialInput = page.locator('.material-row').first().locator('.material-input').first();
     await expect(firstMaterialInput).toBeEnabled();
 
-    // Other players' material inputs should be disabled
-    const secondMaterialInput = page.locator('.material-row').first().locator('.material-input').nth(1);
-    await expect(secondMaterialInput).toBeDisabled();
+    // Host can toggle disconnected slots
+    const secondToggle = page.locator('.player-toggle-btn').nth(1);
+    await expect(secondToggle).toBeEnabled();
   });
 });
 

@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test.describe('Screenshot Upload Feature', () => {
+// Screenshot feature is currently hidden - skip all tests
+test.describe.skip('Screenshot Upload Feature', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
@@ -92,7 +93,7 @@ test.describe('Screenshot Upload Feature', () => {
   });
 });
 
-test.describe('Screenshot Upload - File Upload Flow', () => {
+test.describe.skip('Screenshot Upload - File Upload Flow', () => {
   // Create a simple test image for upload tests
   const testImagePath = path.join(__dirname, 'test-image.png');
 

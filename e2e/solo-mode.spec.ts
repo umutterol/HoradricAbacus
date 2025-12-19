@@ -101,7 +101,8 @@ test.describe('Solo Mode (No Supabase)', () => {
     await expect(materialInput).toHaveValue('');
   });
 
-  test('should show screenshot upload buttons for all players', async ({ page }) => {
+  // Screenshot feature is currently hidden - skip this test
+  test.skip('should show screenshot upload buttons for all players', async ({ page }) => {
     // Each player should have a screenshot upload button
     const screenshotBtns = page.locator('.player-screenshot-btn');
     await expect(screenshotBtns).toHaveCount(4);
