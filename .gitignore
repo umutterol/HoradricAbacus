@@ -49,6 +49,9 @@ PRD.md
 ProjectFiles/
 DevLog.md
 
+# Sensitive data
+data/cookies.json
+
 # Misc
 *.tsbuildinfo
 coverage/
