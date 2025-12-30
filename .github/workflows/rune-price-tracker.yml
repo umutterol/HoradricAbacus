@@ -1,0 +1,39 @@
+name: Diablo 4 Rune Price Tracker
+
+on:
+  schedule:
+    # Every 2 hours (UTC)
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # Manual trigger button
+
+jobs:
+  track-prices:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+      
+      - name: Run price tracker
+        run: node price-tracker/tracker.js
+        env:
+          DIABLO_TRADE_BASE_URL: https://diablo.trade
+          MIN_PRICE: 1000000
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name "price-tracker-bot"
+          git config user.email "bot@diablotracker.local"
+          git add data/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update rune prices: $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)

@@ -1,0 +1,467 @@
+{
+  "generated": "2025-12-30T07:27:05.906Z",
+  "gameMode": "SEASONAL_SOFTCORE",
+  "source": "diablo.trade",
+  "runes": [
+    {
+      "name": "Ahu",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:49.660Z"
+    },
+    {
+      "name": "Bac",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:51.356Z"
+    },
+    {
+      "name": "Igni",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:53.040Z"
+    },
+    {
+      "name": "Lith",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:54.721Z"
+    },
+    {
+      "name": "Nagu",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:56.397Z"
+    },
+    {
+      "name": "Tam",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:58.088Z"
+    },
+    {
+      "name": "Xol",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:25:59.779Z"
+    },
+    {
+      "name": "Yul",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:01.466Z"
+    },
+    {
+      "name": "Feo",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:03.147Z"
+    },
+    {
+      "name": "Neo",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:04.846Z"
+    },
+    {
+      "name": "Noc",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:06.545Z"
+    },
+    {
+      "name": "Poc",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:08.233Z"
+    },
+    {
+      "name": "Cem",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:09.920Z"
+    },
+    {
+      "name": "Cir",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:11.590Z"
+    },
+    {
+      "name": "Moni",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:13.269Z"
+    },
+    {
+      "name": "Yax",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:14.958Z"
+    },
+    {
+      "name": "Zan",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:16.643Z"
+    },
+    {
+      "name": "Eom",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:18.345Z"
+    },
+    {
+      "name": "Jah",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:20.021Z"
+    },
+    {
+      "name": "Ohm",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:21.704Z"
+    },
+    {
+      "name": "Vex",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:23.381Z"
+    },
+    {
+      "name": "Xan",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:25.074Z"
+    },
+    {
+      "name": "Yom",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:26.753Z"
+    },
+    {
+      "name": "Chac",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:28.446Z"
+    },
+    {
+      "name": "Kel",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:30.436Z"
+    },
+    {
+      "name": "Kry",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:32.121Z"
+    },
+    {
+      "name": "Lac",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:33.809Z"
+    },
+    {
+      "name": "Mot",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:35.507Z"
+    },
+    {
+      "name": "Ner",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:37.195Z"
+    },
+    {
+      "name": "Qax",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:38.906Z"
+    },
+    {
+      "name": "Que",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:40.588Z"
+    },
+    {
+      "name": "Thul",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:42.275Z"
+    },
+    {
+      "name": "Tzic",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:43.952Z"
+    },
+    {
+      "name": "Wat",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:45.643Z"
+    },
+    {
+      "name": "Xal",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:47.327Z"
+    },
+    {
+      "name": "Zec",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:49.019Z"
+    },
+    {
+      "name": "Ceh",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:50.696Z"
+    },
+    {
+      "name": "Gar",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:52.366Z"
+    },
+    {
+      "name": "Lum",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:54.044Z"
+    },
+    {
+      "name": "Qua",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:55.728Z"
+    },
+    {
+      "name": "Tal",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:57.424Z"
+    },
+    {
+      "name": "Teb",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:26:59.107Z"
+    },
+    {
+      "name": "Tec",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:27:00.810Z"
+    },
+    {
+      "name": "Ton",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:27:02.487Z"
+    },
+    {
+      "name": "Tun",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:27:04.167Z"
+    },
+    {
+      "name": "Zid",
+      "averagePrice": null,
+      "medianPrice": null,
+      "minPrice": null,
+      "maxPrice": null,
+      "count": 0,
+      "currency": "gold",
+      "lastUpdated": "2025-12-30T07:27:05.836Z"
+    }
+  ]
+}
