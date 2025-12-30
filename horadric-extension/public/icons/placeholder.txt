@@ -1,0 +1,8 @@
+Add icon files here:
+- icon16.png (16x16)
+- icon48.png (48x48)
+- icon128.png (128x128)
+
+You can create these using any image editor.
+Suggested design: Gold/amber colored cube or diamond shape on dark background
+to match the Diablo 4 aesthetic and the "Horadric" theme.

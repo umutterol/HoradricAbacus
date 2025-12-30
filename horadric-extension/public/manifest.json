@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Horadric Abacus - D4 Rune Prices",
+  "version": "1.0.0",
+  "description": "Track Diablo 4 rune market prices with deal alerts and price history",
+
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+
+  "host_permissions": [
+    "https://diablo.trade/*"
+  ],
+
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://diablo.trade/*"],
+      "js": ["content/interceptor.js"],
+      "css": ["content/styles.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://diablo.trade/listings/*"],
+      "js": ["content/price-overlay.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://diablo.trade/*"]
+    }
+  ]
+}
